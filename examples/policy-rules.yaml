@@ -1,0 +1,137 @@
+---
+# Aerlix Release Policy Rules
+# Schema version: 1.0
+# Applied to all releases unless overridden at the release level.
+
+metadata:
+  name: Aerlix Default Release Policy
+  version: 1.0.0
+  framework: NIST-800-53-Rev5
+  description: |
+    Default release gate policy for regulated software delivery.
+    All blocking rules must pass for a release to be approved.
+
+rules:
+  - id: RULE-001
+    name: "All artifacts must have an SBOM"
+    description: |
+      Every build artifact included in a release must have an attached
+      Software Bill of Materials (SBOM) in CycloneDX or SPDX format.
+    category: supply-chain
+    severity: critical
+    blocking: true
+    enabled: true
+    condition:
+      type: artifact_has_sbom
+      threshold: 1.0   # 100% of artifacts must have SBOM
+
+  - id: RULE-002
+    name: "All artifacts must have provenance"
+    description: |
+      Build provenance (SLSA attestation) must be present for all release
+      artifacts. SLSA Level 2 or higher is required.
+    category: supply-chain
+    severity: high
+    blocking: true
+    enabled: true
+    condition:
+      type: artifact_has_provenance
+      threshold: 1.0
+
+  - id: RULE-003
+    name: "No critical vulnerabilities"
+    description: |
+      Zero critical CVEs are permitted in any release artifact.
+      Critical CVEs with CVSS >= 9.0 must be remediated or have
+      an approved exception before release.
+    category: vulnerability-management
+    severity: critical
+    blocking: true
+    enabled: true
+    condition:
+      type: no_critical_vulns
+      max_allowed: 0
+
+  - id: RULE-004
+    name: "High vulnerabilities below threshold"
+    description: |
+      At most 3 high-severity CVEs (CVSS 7.0–8.9) permitted across all
+      release artifacts. Exceptions must be documented.
+    category: vulnerability-management
+    severity: high
+    blocking: true
+    enabled: true
+    condition:
+      type: no_high_vulns_above_threshold
+      max_allowed: 3
+
+  - id: RULE-005
+    name: "Required NIST-800-53 controls implemented"
+    description: |
+      All controls in the configured baseline must be in 'implemented'
+      or 'inherited' status before a release can be approved.
+    category: compliance
+    severity: critical
+    blocking: true
+    enabled: true
+    condition:
+      type: controls_implemented
+      required_controls:
+        - AC-2
+        - AC-3
+        - AU-6
+        - CA-7
+        - CM-3
+        - RA-5
+        - SI-2
+
+  - id: RULE-006
+    name: "No open blocking exceptions"
+    description: |
+      No unresolved blocking risk exceptions may remain open at release time.
+      All exceptions must be approved or remediated.
+    category: risk-management
+    severity: high
+    blocking: true
+    enabled: true
+    condition:
+      type: no_open_blocking_exceptions
+
+  - id: RULE-007
+    name: "Evidence freshness within 90 days"
+    description: |
+      All linked compliance evidence must have been collected within the
+      last 90 calendar days. Stale evidence triggers a warning.
+    category: compliance
+    severity: medium
+    blocking: false
+    enabled: true
+    condition:
+      type: evidence_freshness_days
+      max_age_days: 90
+
+  - id: RULE-008
+    name: "Test pass rate 100%"
+    description: |
+      All registered test cases for this release must pass.
+      Failed tests block the release.
+    category: quality
+    severity: high
+    blocking: true
+    enabled: true
+    condition:
+      type: test_pass_rate
+      min_pass_rate: 1.0
+
+  - id: RULE-009
+    name: "Artifacts must be signed"
+    description: |
+      All artifacts must carry a digital signature (Cosign or Sigstore).
+      Unsigned artifacts generate a warning.
+    category: supply-chain
+    severity: medium
+    blocking: false
+    enabled: true
+    condition:
+      type: artifact_has_signature
+      threshold: 1.0

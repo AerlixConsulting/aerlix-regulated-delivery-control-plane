@@ -1,0 +1,72 @@
+controls:
+  - control_id: AC-2
+    family: Access Control
+    title: Account Management
+    description: |
+      Manage information system accounts including establishing, activating,
+      modifying, reviewing, disabling, and removing accounts.
+    framework: NIST-800-53-Rev5
+    baseline: low
+
+  - control_id: AC-3
+    family: Access Control
+    title: Access Enforcement
+    description: |
+      Enforce approved authorizations for logical access to information
+      and system resources.
+    framework: NIST-800-53-Rev5
+    baseline: low
+
+  - control_id: AU-6
+    family: Audit and Accountability
+    title: Audit Record Review, Analysis, and Reporting
+    description: |
+      Review and analyze information system audit records for indications
+      of inappropriate or unusual activity.
+    framework: NIST-800-53-Rev5
+    baseline: low
+
+  - control_id: CA-7
+    family: Assessment, Authorization, and Monitoring
+    title: Continuous Monitoring
+    description: |
+      Develop a continuous monitoring strategy and implement a continuous
+      monitoring program.
+    framework: NIST-800-53-Rev5
+    baseline: low
+
+  - control_id: CM-3
+    family: Configuration Management
+    title: Configuration Change Control
+    description: |
+      Determine the types of changes to the information system that are
+      configuration-controlled.
+    framework: NIST-800-53-Rev5
+    baseline: moderate
+
+  - control_id: RA-5
+    family: Risk Assessment
+    title: Vulnerability Monitoring and Scanning
+    description: |
+      Monitor and scan for vulnerabilities in the information system
+      and hosted applications.
+    framework: NIST-800-53-Rev5
+    baseline: moderate
+
+  - control_id: SI-2
+    family: System and Information Integrity
+    title: Flaw Remediation
+    description: |
+      Identify, report, and correct information system flaws.
+      Install security-relevant software updates within defined time periods.
+    framework: NIST-800-53-Rev5
+    baseline: low
+
+  - control_id: SA-10
+    family: System and Services Acquisition
+    title: Developer Configuration Management
+    description: |
+      Require the developer of the information system to perform configuration
+      management during system development, implementation, and operation.
+    framework: NIST-800-53-Rev5
+    baseline: moderate
