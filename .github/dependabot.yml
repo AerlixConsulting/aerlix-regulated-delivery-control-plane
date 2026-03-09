@@ -1,0 +1,82 @@
+version: 2
+
+updates:
+  # Python backend (pip)
+  - package-ecosystem: pip
+    directory: /
+    schedule:
+      interval: weekly
+      day: monday
+      time: "06:00"
+      timezone: "UTC"
+    open-pull-requests-limit: 10
+    reviewers:
+      - AerlixConsulting/engineering
+    labels:
+      - dependencies
+      - security
+    groups:
+      fastapi-stack:
+        patterns:
+          - "fastapi"
+          - "uvicorn"
+          - "pydantic*"
+          - "starlette"
+      sqlalchemy-stack:
+        patterns:
+          - "sqlalchemy"
+          - "alembic"
+          - "asyncpg"
+          - "psycopg2*"
+          - "aiosqlite"
+      security:
+        patterns:
+          - "cryptography"
+          - "python-jose"
+          - "passlib"
+          - "bcrypt"
+    ignore:
+      - dependency-name: "*"
+        update-types: ["version-update:semver-patch"]
+
+  # Node / frontend (npm)
+  - package-ecosystem: npm
+    directory: /frontend
+    schedule:
+      interval: weekly
+      day: monday
+      time: "06:00"
+      timezone: "UTC"
+    open-pull-requests-limit: 10
+    reviewers:
+      - AerlixConsulting/engineering
+    labels:
+      - dependencies
+      - frontend
+    groups:
+      react-stack:
+        patterns:
+          - "react"
+          - "react-dom"
+          - "react-router*"
+          - "@types/react*"
+      vite-build:
+        patterns:
+          - "vite"
+          - "@vitejs/*"
+          - "typescript"
+
+  # GitHub Actions
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly
+      day: monday
+      time: "06:00"
+      timezone: "UTC"
+    open-pull-requests-limit: 10
+    reviewers:
+      - AerlixConsulting/engineering
+    labels:
+      - dependencies
+      - github-actions

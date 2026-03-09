@@ -1,0 +1,18 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: aerlix-api
+  namespace: aerlix
+  labels:
+    app.kubernetes.io/name: aerlix-api
+    app.kubernetes.io/component: api
+    app.kubernetes.io/part-of: aerlix-control-plane
+spec:
+  selector:
+    app: aerlix-api
+  ports:
+    - name: http
+      port: 80
+      targetPort: http
+      protocol: TCP
+  type: ClusterIP
