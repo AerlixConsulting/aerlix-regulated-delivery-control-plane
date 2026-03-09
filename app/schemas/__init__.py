@@ -96,6 +96,7 @@ class RequirementRead(RequirementBase):
     id: uuid.UUID
     created_at: datetime
     updated_at: datetime
+    is_completed: bool
 
 
 class RequirementDetail(RequirementRead):
