@@ -1,0 +1,112 @@
+site_name: Aerlix Regulated Delivery Control Plane
+site_url: https://aerlixconsulting.github.io/aerlix-regulated-delivery-control-plane
+site_description: Compliance-native software delivery control plane for regulated environments
+site_author: Aerlix Consulting
+
+repo_name: AerlixConsulting/aerlix-regulated-delivery-control-plane
+repo_url: https://github.com/AerlixConsulting/aerlix-regulated-delivery-control-plane
+edit_uri: edit/main/docs/
+
+copyright: Copyright &copy; 2024 Aerlix Consulting — Apache 2.0 License
+
+theme:
+  name: material
+  palette:
+    - scheme: default
+      primary: indigo
+      accent: blue
+      toggle:
+        icon: material/brightness-7
+        name: Switch to dark mode
+    - scheme: slate
+      primary: indigo
+      accent: blue
+      toggle:
+        icon: material/brightness-4
+        name: Switch to light mode
+  font:
+    text: Inter
+    code: JetBrains Mono
+  icon:
+    repo: fontawesome/brands/github
+    logo: material/shield-check
+  features:
+    - navigation.tabs
+    - navigation.tabs.sticky
+    - navigation.sections
+    - navigation.expand
+    - navigation.top
+    - navigation.footer
+    - toc.integrate
+    - search.suggest
+    - search.highlight
+    - content.tabs.link
+    - content.code.annotate
+    - content.code.copy
+    - content.action.edit
+    - content.action.view
+
+plugins:
+  - search
+  - git-revision-date-localized:
+      type: date
+      fallback_to_build_date: true
+
+markdown_extensions:
+  - admonition
+  - tables
+  - attr_list
+  - def_list
+  - footnotes
+  - md_in_html
+  - toc:
+      permalink: true
+  - pymdownx.highlight:
+      anchor_linenums: true
+      line_spans: __span
+      pygments_lang_class: true
+  - pymdownx.inlinehilite
+  - pymdownx.snippets
+  - pymdownx.superfences:
+      custom_fences:
+        - name: mermaid
+          class: mermaid
+          format: !!python/name:pymdownx.superfences.fence_code_format
+  - pymdownx.tabbed:
+      alternate_style: true
+  - pymdownx.tasklist:
+      custom_checkbox: true
+  - pymdownx.emoji:
+      emoji_index: !!python/name:material.extensions.emoji.twemoji
+      emoji_generator: !!python/name:material.extensions.emoji.to_svg
+
+extra:
+  social:
+    - icon: fontawesome/brands/github
+      link: https://github.com/AerlixConsulting
+    - icon: fontawesome/solid/envelope
+      link: mailto:engineering@aerlix.io
+  version:
+    provider: mike
+
+nav:
+  - Home: index.md
+  - Getting Started:
+      - Quickstart: getting-started/quickstart.md
+      - Configuration: getting-started/configuration.md
+      - Docker Compose: getting-started/docker-compose.md
+  - Architecture:
+      - Overview: architecture.md
+      - Data Model: data-model.md
+  - User Guides:
+      - Policy Engine: policy-engine.md
+      - Audit Bundles: audit-bundles.md
+      - SBOM & Supply Chain: user-guides/sbom.md
+      - Traceability Graph: user-guides/traceability.md
+  - API Reference: api-reference.md
+  - Developer Guide:
+      - Contributing: developer/contributing.md
+      - Testing: developer/testing.md
+      - Security: developer/security.md
+  - Demo Walkthrough: demo-walkthrough.md
+  - Roadmap: roadmap.md

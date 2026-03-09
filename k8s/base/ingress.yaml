@@ -1,0 +1,36 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: aerlix-ingress
+  namespace: aerlix
+  labels:
+    app.kubernetes.io/name: aerlix-ingress
+    app.kubernetes.io/part-of: aerlix-control-plane
+  annotations:
+    nginx.ingress.kubernetes.io/rewrite-target: /
+    nginx.ingress.kubernetes.io/ssl-redirect: "true"
+    nginx.ingress.kubernetes.io/use-regex: "true"
+spec:
+  ingressClassName: nginx
+  tls:
+    - hosts:
+        - aerlix.example.com
+      secretName: aerlix-tls
+  rules:
+    - host: aerlix.example.com
+      http:
+        paths:
+          - path: /api(/|$)(.*)
+            pathType: ImplementationSpecific
+            backend:
+              service:
+                name: aerlix-api
+                port:
+                  name: http
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: aerlix-frontend
+                port:
+                  name: http

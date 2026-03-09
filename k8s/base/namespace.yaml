@@ -1,0 +1,7 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: aerlix
+  labels:
+    app.kubernetes.io/name: aerlix-control-plane
+    app.kubernetes.io/managed-by: kustomize

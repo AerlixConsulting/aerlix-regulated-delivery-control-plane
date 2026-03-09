@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: 💬 GitHub Discussions
+    url: https://github.com/AerlixConsulting/aerlix-regulated-delivery-control-plane/discussions
+    about: Ask questions, share ideas, and connect with the community
+  - name: 📖 Documentation
+    url: https://github.com/AerlixConsulting/aerlix-regulated-delivery-control-plane/tree/main/docs
+    about: Read the project documentation before opening an issue

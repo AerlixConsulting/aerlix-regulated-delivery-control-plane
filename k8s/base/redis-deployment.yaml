@@ -1,0 +1,69 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: aerlix-redis
+  namespace: aerlix
+  labels:
+    app.kubernetes.io/name: aerlix-redis
+    app.kubernetes.io/component: cache
+    app.kubernetes.io/part-of: aerlix-control-plane
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: aerlix-redis
+  template:
+    metadata:
+      labels:
+        app: aerlix-redis
+    spec:
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 999
+      containers:
+        - name: redis
+          image: redis:7-alpine
+          ports:
+            - name: redis
+              containerPort: 6379
+          args: ["--save", "60", "1", "--loglevel", "warning"]
+          resources:
+            requests:
+              cpu: "50m"
+              memory: "64Mi"
+            limits:
+              cpu: "200m"
+              memory: "256Mi"
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities:
+              drop:
+                - ALL
+          volumeMounts:
+            - name: redis-data
+              mountPath: /data
+            - name: redis-tmp
+              mountPath: /tmp
+      volumes:
+        - name: redis-data
+          emptyDir: {}
+        - name: redis-tmp
+          emptyDir: {}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: aerlix-redis
+  namespace: aerlix
+  labels:
+    app.kubernetes.io/name: aerlix-redis
+    app.kubernetes.io/component: cache
+spec:
+  selector:
+    app: aerlix-redis
+  ports:
+    - name: redis
+      port: 6379
+      targetPort: redis
+  type: ClusterIP

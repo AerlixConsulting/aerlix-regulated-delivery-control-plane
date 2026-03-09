@@ -1,0 +1,151 @@
+name: SBOM Generation & Supply-Chain Attestation
+
+on:
+  push:
+    branches: [main]
+    tags:
+      - "v*.*.*"
+  workflow_dispatch:
+
+env:
+  REGISTRY: ghcr.io
+  IMAGE_NAME: ${{ github.repository }}
+
+jobs:
+  generate-sbom:
+    name: Generate SBOM (Syft)
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      packages: read
+      id-token: write  # required for OIDC / Sigstore attestations
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python 3.12
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+
+      - name: Install Python dependencies
+        run: pip install -r requirements.txt
+
+      # ------------------------------------------------------------------
+      # Source-level SBOM (Python packages)
+      # ------------------------------------------------------------------
+      - name: Install Syft
+        uses: anchore/sbom-action/download-syft@v0
+
+      - name: Generate Python SBOM (SPDX)
+        uses: anchore/sbom-action@v0
+        with:
+          path: .
+          format: spdx-json
+          output-file: sbom-python.spdx.json
+          artifact-name: sbom-python-spdx.json
+
+      - name: Generate Python SBOM (CycloneDX)
+        uses: anchore/sbom-action@v0
+        with:
+          path: .
+          format: cyclonedx-json
+          output-file: sbom-python.cdx.json
+          artifact-name: sbom-python-cdx.json
+
+      # ------------------------------------------------------------------
+      # Frontend SBOM
+      # ------------------------------------------------------------------
+      - name: Set up Node 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+
+      - name: Install frontend dependencies
+        working-directory: frontend
+        run: npm ci
+
+      - name: Generate Frontend SBOM (SPDX)
+        uses: anchore/sbom-action@v0
+        with:
+          path: ./frontend
+          format: spdx-json
+          output-file: sbom-frontend.spdx.json
+          artifact-name: sbom-frontend-spdx.json
+
+      # ------------------------------------------------------------------
+      # Validate SBOMs are well-formed
+      # ------------------------------------------------------------------
+      - name: Validate SBOM files
+        run: |
+          python - <<'EOF'
+          import json, sys
+
+          for fname in ["sbom-python.spdx.json", "sbom-python.cdx.json", "sbom-frontend.spdx.json"]:
+              try:
+                  with open(fname) as f:
+                      data = json.load(f)
+                  print(f"✅ {fname} — valid JSON")
+              except Exception as e:
+                  print(f"❌ {fname} — {e}")
+                  sys.exit(1)
+          EOF
+
+      # ------------------------------------------------------------------
+      # Upload SBOMs as release assets (on tag pushes)
+      # ------------------------------------------------------------------
+      - name: Attach SBOMs to GitHub Release
+        if: startsWith(github.ref, 'refs/tags/')
+        uses: softprops/action-gh-release@v2
+        with:
+          files: |
+            sbom-python.spdx.json
+            sbom-python.cdx.json
+            sbom-frontend.spdx.json
+
+  attest-build-provenance:
+    name: Generate Build Provenance Attestation
+    runs-on: ubuntu-latest
+    needs: generate-sbom
+    if: startsWith(github.ref, 'refs/tags/')
+    permissions:
+      contents: read
+      packages: write
+      id-token: write
+      attestations: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Log in to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build and push API image
+        id: push
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          dockerfile: Dockerfile
+          push: true
+          tags: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/api:${{ github.ref_name }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      - name: Generate SLSA provenance attestation
+        uses: actions/attest-build-provenance@v1
+        with:
+          subject-name: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/api
+          subject-digest: ${{ steps.push.outputs.digest }}
+          push-to-registry: true

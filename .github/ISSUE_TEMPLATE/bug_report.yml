@@ -1,0 +1,109 @@
+name: Bug Report
+description: File a bug report to help us improve the control plane
+title: "[Bug]: "
+labels: ["bug", "triage"]
+assignees: []
+
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thank you for reporting a bug! Please fill in as much detail as possible so we can reproduce and fix it quickly.
+
+  - type: checkboxes
+    id: preflight
+    attributes:
+      label: Before submitting
+      options:
+        - label: I searched existing issues and did not find a duplicate
+          required: true
+        - label: I am running the latest version of the control plane
+          required: false
+
+  - type: input
+    id: version
+    attributes:
+      label: Version
+      description: What version of the control plane are you running?
+      placeholder: "e.g. v0.2.1 or git SHA abc1234"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: component
+    attributes:
+      label: Affected component
+      multiple: true
+      options:
+        - API (FastAPI)
+        - Frontend (React)
+        - CLI (Typer)
+        - Traceability Engine
+        - Policy Engine
+        - Audit Exporter
+        - Docker / Docker Compose
+        - Kubernetes
+        - Database / Migrations
+        - SBOM / Supply-Chain
+        - Documentation
+        - Other
+    validations:
+      required: true
+
+  - type: textarea
+    id: description
+    attributes:
+      label: Describe the bug
+      description: A clear and concise description of what the bug is.
+    validations:
+      required: true
+
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to reproduce
+      description: Step-by-step instructions to reproduce the issue.
+      placeholder: |
+        1. Start services with `make up`
+        2. POST to `/api/v1/releases`
+        3. Observe error ...
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected behaviour
+      description: What should have happened?
+    validations:
+      required: true
+
+  - type: textarea
+    id: actual
+    attributes:
+      label: Actual behaviour
+      description: What actually happened? Include any error messages or stack traces.
+    validations:
+      required: true
+
+  - type: textarea
+    id: environment
+    attributes:
+      label: Environment
+      description: |
+        Please complete the following information.
+      value: |
+        - OS: [e.g. Ubuntu 22.04]
+        - Python: [e.g. 3.12.3]
+        - Docker: [e.g. 26.1.0]
+        - Database: [e.g. PostgreSQL 16]
+        - Deployment: [Docker Compose / Kubernetes / bare-metal]
+    validations:
+      required: false
+
+  - type: textarea
+    id: logs
+    attributes:
+      label: Relevant logs / output
+      description: Paste any relevant log output here (sanitise secrets before posting).
+      render: shell
