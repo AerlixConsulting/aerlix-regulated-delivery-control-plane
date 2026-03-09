@@ -15,7 +15,9 @@ import uuid
 from datetime import datetime
 
 from sqlalchemy import (
+    JSON,
     Boolean,
+    Column,
     DateTime,
     Enum,
     Float,
@@ -24,8 +26,8 @@ from sqlalchemy import (
     String,
     Text,
     UniqueConstraint,
+    Uuid,
 )
-from sqlalchemy.dialects.postgresql import JSONB, UUID
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from sqlalchemy.sql import func
 
@@ -116,27 +118,27 @@ class IncidentStatus(str, enum.Enum):
 # Association / link tables (many-to-many)
 # ---------------------------------------------------------------------------
 
-from sqlalchemy import Column, Table  # noqa: E402
+from sqlalchemy import Table  # noqa: E402
 
 requirement_control_link = Table(
     "requirement_control_link",
     Base.metadata,
-    Column("requirement_id", UUID(as_uuid=True), ForeignKey("requirements.id"), primary_key=True),
-    Column("control_id", UUID(as_uuid=True), ForeignKey("controls.id"), primary_key=True),
+    Column("requirement_id", Uuid(as_uuid=True), ForeignKey("requirements.id"), primary_key=True),
+    Column("control_id", Uuid(as_uuid=True), ForeignKey("controls.id"), primary_key=True),
 )
 
 release_requirement_link = Table(
     "release_requirement_link",
     Base.metadata,
-    Column("release_id", UUID(as_uuid=True), ForeignKey("releases.id"), primary_key=True),
-    Column("requirement_id", UUID(as_uuid=True), ForeignKey("requirements.id"), primary_key=True),
+    Column("release_id", Uuid(as_uuid=True), ForeignKey("releases.id"), primary_key=True),
+    Column("requirement_id", Uuid(as_uuid=True), ForeignKey("requirements.id"), primary_key=True),
 )
 
 release_evidence_link = Table(
     "release_evidence_link",
     Base.metadata,
-    Column("release_id", UUID(as_uuid=True), ForeignKey("releases.id"), primary_key=True),
-    Column("evidence_id", UUID(as_uuid=True), ForeignKey("evidence_items.id"), primary_key=True),
+    Column("release_id", Uuid(as_uuid=True), ForeignKey("releases.id"), primary_key=True),
+    Column("evidence_id", Uuid(as_uuid=True), ForeignKey("evidence_items.id"), primary_key=True),
 )
 
 
@@ -148,7 +150,7 @@ release_evidence_link = Table(
 class Owner(Base):
     __tablename__ = "owners"
 
-    id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    id: Mapped[uuid.UUID] = mapped_column(Uuid(as_uuid=True), primary_key=True, default=uuid.uuid4)
     name: Mapped[str] = mapped_column(String(200), nullable=False)
     email: Mapped[str | None] = mapped_column(String(200))
     role: Mapped[str | None] = mapped_column(String(100))
@@ -163,13 +165,13 @@ class Owner(Base):
 class SystemComponent(Base):
     __tablename__ = "system_components"
 
-    id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    id: Mapped[uuid.UUID] = mapped_column(Uuid(as_uuid=True), primary_key=True, default=uuid.uuid4)
     name: Mapped[str] = mapped_column(String(200), nullable=False)
     component_type: Mapped[str] = mapped_column(String(100))  # service, library, db, infra
     description: Mapped[str | None] = mapped_column(Text)
     version: Mapped[str | None] = mapped_column(String(50))
-    owner_id: Mapped[uuid.UUID | None] = mapped_column(UUID(as_uuid=True), ForeignKey("owners.id"))
-    metadata_: Mapped[dict | None] = mapped_column("metadata", JSONB, default=dict)
+    owner_id: Mapped[uuid.UUID | None] = mapped_column(Uuid(as_uuid=True), ForeignKey("owners.id"))
+    metadata_: Mapped[dict | None] = mapped_column("metadata", JSON, default=dict)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
     updated_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), server_default=func.now(), onupdate=func.now()
@@ -188,7 +190,7 @@ class SystemComponent(Base):
 class Requirement(Base):
     __tablename__ = "requirements"
 
-    id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    id: Mapped[uuid.UUID] = mapped_column(Uuid(as_uuid=True), primary_key=True, default=uuid.uuid4)
     req_id: Mapped[str] = mapped_column(String(50), unique=True, nullable=False)  # e.g. REQ-001
     title: Mapped[str] = mapped_column(String(500), nullable=False)
     description: Mapped[str | None] = mapped_column(Text)
@@ -200,9 +202,9 @@ class Requirement(Base):
     )
     priority: Mapped[str | None] = mapped_column(String(20))  # critical, high, medium, low
     source: Mapped[str | None] = mapped_column(String(200))  # regulatory source / standard
-    owner_id: Mapped[uuid.UUID | None] = mapped_column(UUID(as_uuid=True), ForeignKey("owners.id"))
+    owner_id: Mapped[uuid.UUID | None] = mapped_column(Uuid(as_uuid=True), ForeignKey("owners.id"))
     parent_id: Mapped[uuid.UUID | None] = mapped_column(
-        UUID(as_uuid=True), ForeignKey("requirements.id")
+        Uuid(as_uuid=True), ForeignKey("requirements.id")
     )
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
     updated_at: Mapped[datetime] = mapped_column(
@@ -235,7 +237,7 @@ class Requirement(Base):
 class Control(Base):
     __tablename__ = "controls"
 
-    id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    id: Mapped[uuid.UUID] = mapped_column(Uuid(as_uuid=True), primary_key=True, default=uuid.uuid4)
     control_id: Mapped[str] = mapped_column(String(50), unique=True, nullable=False)  # e.g. AC-2
     family: Mapped[str] = mapped_column(String(100))  # Access Control, Audit, etc.
     title: Mapped[str] = mapped_column(String(500), nullable=False)
@@ -258,12 +260,12 @@ class ControlImplementation(Base):
     __tablename__ = "control_implementations"
     __table_args__ = (UniqueConstraint("control_id", "component_id"),)
 
-    id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    id: Mapped[uuid.UUID] = mapped_column(Uuid(as_uuid=True), primary_key=True, default=uuid.uuid4)
     control_id: Mapped[uuid.UUID] = mapped_column(
-        UUID(as_uuid=True), ForeignKey("controls.id"), nullable=False
+        Uuid(as_uuid=True), ForeignKey("controls.id"), nullable=False
     )
     component_id: Mapped[uuid.UUID | None] = mapped_column(
-        UUID(as_uuid=True), ForeignKey("system_components.id")
+        Uuid(as_uuid=True), ForeignKey("system_components.id")
     )
     status: Mapped[ControlStatus] = mapped_column(
         Enum(ControlStatus), default=ControlStatus.NOT_IMPLEMENTED
@@ -288,7 +290,7 @@ class ControlImplementation(Base):
 class EvidenceItem(Base):
     __tablename__ = "evidence_items"
 
-    id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    id: Mapped[uuid.UUID] = mapped_column(Uuid(as_uuid=True), primary_key=True, default=uuid.uuid4)
     evidence_id: Mapped[str] = mapped_column(String(100), unique=True, nullable=False)
     title: Mapped[str] = mapped_column(String(500), nullable=False)
     evidence_type: Mapped[EvidenceType] = mapped_column(Enum(EvidenceType))
@@ -302,9 +304,9 @@ class EvidenceItem(Base):
         DateTime(timezone=True), server_default=func.now()
     )
     expires_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
-    metadata_: Mapped[dict | None] = mapped_column("metadata", JSONB, default=dict)
+    metadata_: Mapped[dict | None] = mapped_column("metadata", JSON, default=dict)
     control_id: Mapped[uuid.UUID | None] = mapped_column(
-        UUID(as_uuid=True), ForeignKey("controls.id")
+        Uuid(as_uuid=True), ForeignKey("controls.id")
     )
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
 
@@ -322,13 +324,13 @@ class EvidenceItem(Base):
 class TestCase(Base):
     __tablename__ = "test_cases"
 
-    id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    id: Mapped[uuid.UUID] = mapped_column(Uuid(as_uuid=True), primary_key=True, default=uuid.uuid4)
     test_id: Mapped[str] = mapped_column(String(100), unique=True, nullable=False)
     name: Mapped[str] = mapped_column(String(500), nullable=False)
     description: Mapped[str | None] = mapped_column(Text)
     test_type: Mapped[str | None] = mapped_column(String(100))  # unit, integration, e2e, security
     requirement_id: Mapped[uuid.UUID | None] = mapped_column(
-        UUID(as_uuid=True), ForeignKey("requirements.id")
+        Uuid(as_uuid=True), ForeignKey("requirements.id")
     )
     last_result: Mapped[str | None] = mapped_column(String(20))  # pass, fail, skip
     last_run_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
@@ -345,7 +347,7 @@ class TestCase(Base):
 class BuildArtifact(Base):
     __tablename__ = "build_artifacts"
 
-    id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    id: Mapped[uuid.UUID] = mapped_column(Uuid(as_uuid=True), primary_key=True, default=uuid.uuid4)
     artifact_id: Mapped[str] = mapped_column(String(200), unique=True, nullable=False)
     name: Mapped[str] = mapped_column(String(500), nullable=False)
     artifact_type: Mapped[str] = mapped_column(String(100))  # container, package, binary
@@ -360,7 +362,7 @@ class BuildArtifact(Base):
     critical_vulns: Mapped[int] = mapped_column(Integer, default=0)
     high_vulns: Mapped[int] = mapped_column(Integer, default=0)
     release_id: Mapped[uuid.UUID | None] = mapped_column(
-        UUID(as_uuid=True), ForeignKey("releases.id")
+        Uuid(as_uuid=True), ForeignKey("releases.id")
     )
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
 
@@ -372,18 +374,18 @@ class BuildArtifact(Base):
 class SBOMRecord(Base):
     __tablename__ = "sbom_records"
 
-    id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    id: Mapped[uuid.UUID] = mapped_column(Uuid(as_uuid=True), primary_key=True, default=uuid.uuid4)
     sbom_id: Mapped[str] = mapped_column(String(200), unique=True, nullable=False)
     format: Mapped[str] = mapped_column(String(50))  # cyclonedx, spdx
     spec_version: Mapped[str | None] = mapped_column(String(20))
     component_count: Mapped[int] = mapped_column(Integer, default=0)
     artifact_id: Mapped[uuid.UUID | None] = mapped_column(
-        UUID(as_uuid=True), ForeignKey("build_artifacts.id")
+        Uuid(as_uuid=True), ForeignKey("build_artifacts.id")
     )
     component_id: Mapped[uuid.UUID | None] = mapped_column(
-        UUID(as_uuid=True), ForeignKey("system_components.id")
+        Uuid(as_uuid=True), ForeignKey("system_components.id")
     )
-    raw_content: Mapped[dict | None] = mapped_column(JSONB)
+    raw_content: Mapped[dict | None] = mapped_column(JSON)
     ingested_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), server_default=func.now()
     )
@@ -396,9 +398,9 @@ class SBOMRecord(Base):
 class ProvenanceRecord(Base):
     __tablename__ = "provenance_records"
 
-    id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    id: Mapped[uuid.UUID] = mapped_column(Uuid(as_uuid=True), primary_key=True, default=uuid.uuid4)
     artifact_id: Mapped[uuid.UUID] = mapped_column(
-        UUID(as_uuid=True), ForeignKey("build_artifacts.id"), nullable=False
+        Uuid(as_uuid=True), ForeignKey("build_artifacts.id"), nullable=False
     )
     build_invocation_id: Mapped[str | None] = mapped_column(String(500))
     builder_id: Mapped[str | None] = mapped_column(String(500))
@@ -406,7 +408,7 @@ class ProvenanceRecord(Base):
     source_commit: Mapped[str | None] = mapped_column(String(64))
     slsa_level: Mapped[int | None] = mapped_column(Integer)  # 0–4
     verified: Mapped[bool] = mapped_column(Boolean, default=False)
-    raw_content: Mapped[dict | None] = mapped_column(JSONB)
+    raw_content: Mapped[dict | None] = mapped_column(JSON)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
 
     artifact: Mapped["BuildArtifact"] = relationship(back_populates="provenance_records")
@@ -420,16 +422,16 @@ class ProvenanceRecord(Base):
 class Release(Base):
     __tablename__ = "releases"
 
-    id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    id: Mapped[uuid.UUID] = mapped_column(Uuid(as_uuid=True), primary_key=True, default=uuid.uuid4)
     release_id: Mapped[str] = mapped_column(String(100), unique=True, nullable=False)
     name: Mapped[str] = mapped_column(String(500), nullable=False)
     version: Mapped[str] = mapped_column(String(100), nullable=False)
     description: Mapped[str | None] = mapped_column(Text)
     status: Mapped[ReleaseStatus] = mapped_column(Enum(ReleaseStatus), default=ReleaseStatus.DRAFT)
     component_id: Mapped[uuid.UUID | None] = mapped_column(
-        UUID(as_uuid=True), ForeignKey("system_components.id")
+        Uuid(as_uuid=True), ForeignKey("system_components.id")
     )
-    policy_evaluation: Mapped[dict | None] = mapped_column(JSONB)  # last policy eval result
+    policy_evaluation: Mapped[dict | None] = mapped_column(JSON)  # last policy eval result
     compliance_score: Mapped[float | None] = mapped_column(Float)
     target_env: Mapped[str | None] = mapped_column(String(100))
     release_date: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
@@ -453,9 +455,9 @@ class Release(Base):
 class Deployment(Base):
     __tablename__ = "deployments"
 
-    id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    id: Mapped[uuid.UUID] = mapped_column(Uuid(as_uuid=True), primary_key=True, default=uuid.uuid4)
     release_id: Mapped[uuid.UUID] = mapped_column(
-        UUID(as_uuid=True), ForeignKey("releases.id"), nullable=False
+        Uuid(as_uuid=True), ForeignKey("releases.id"), nullable=False
     )
     environment: Mapped[str] = mapped_column(String(100))  # dev, staging, prod
     deployed_at: Mapped[datetime] = mapped_column(
@@ -477,7 +479,7 @@ class Deployment(Base):
 class PolicyRule(Base):
     __tablename__ = "policy_rules"
 
-    id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    id: Mapped[uuid.UUID] = mapped_column(Uuid(as_uuid=True), primary_key=True, default=uuid.uuid4)
     rule_id: Mapped[str] = mapped_column(String(100), unique=True, nullable=False)
     name: Mapped[str] = mapped_column(String(500), nullable=False)
     description: Mapped[str | None] = mapped_column(Text)
@@ -485,7 +487,7 @@ class PolicyRule(Base):
     severity: Mapped[SeverityLevel] = mapped_column(Enum(SeverityLevel), default=SeverityLevel.HIGH)
     enabled: Mapped[bool] = mapped_column(Boolean, default=True)
     blocking: Mapped[bool] = mapped_column(Boolean, default=True)
-    rule_config: Mapped[dict | None] = mapped_column(JSONB, default=dict)
+    rule_config: Mapped[dict | None] = mapped_column(JSON, default=dict)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
     updated_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), server_default=func.now(), onupdate=func.now()
@@ -500,7 +502,7 @@ class PolicyRule(Base):
 class Incident(Base):
     __tablename__ = "incidents"
 
-    id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    id: Mapped[uuid.UUID] = mapped_column(Uuid(as_uuid=True), primary_key=True, default=uuid.uuid4)
     incident_id: Mapped[str] = mapped_column(String(100), unique=True, nullable=False)
     title: Mapped[str] = mapped_column(String(500), nullable=False)
     description: Mapped[str | None] = mapped_column(Text)
@@ -509,10 +511,10 @@ class Incident(Base):
         Enum(IncidentStatus), default=IncidentStatus.OPEN
     )
     affected_component_id: Mapped[uuid.UUID | None] = mapped_column(
-        UUID(as_uuid=True), ForeignKey("system_components.id")
+        Uuid(as_uuid=True), ForeignKey("system_components.id")
     )
     affected_control_id: Mapped[uuid.UUID | None] = mapped_column(
-        UUID(as_uuid=True), ForeignKey("controls.id")
+        Uuid(as_uuid=True), ForeignKey("controls.id")
     )
     detected_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), server_default=func.now()
@@ -526,7 +528,7 @@ class Incident(Base):
 class ExceptionRecord(Base):
     __tablename__ = "exception_records"
 
-    id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    id: Mapped[uuid.UUID] = mapped_column(Uuid(as_uuid=True), primary_key=True, default=uuid.uuid4)
     exception_id: Mapped[str] = mapped_column(String(100), unique=True, nullable=False)
     title: Mapped[str] = mapped_column(String(500), nullable=False)
     justification: Mapped[str | None] = mapped_column(Text)
@@ -536,13 +538,13 @@ class ExceptionRecord(Base):
     risk_acceptance_notes: Mapped[str | None] = mapped_column(Text)
     approver: Mapped[str | None] = mapped_column(String(200))
     incident_id: Mapped[uuid.UUID | None] = mapped_column(
-        UUID(as_uuid=True), ForeignKey("incidents.id")
+        Uuid(as_uuid=True), ForeignKey("incidents.id")
     )
     release_id: Mapped[uuid.UUID | None] = mapped_column(
-        UUID(as_uuid=True), ForeignKey("releases.id")
+        Uuid(as_uuid=True), ForeignKey("releases.id")
     )
     affected_control_id: Mapped[uuid.UUID | None] = mapped_column(
-        UUID(as_uuid=True), ForeignKey("controls.id")
+        Uuid(as_uuid=True), ForeignKey("controls.id")
     )
     expires_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
@@ -562,15 +564,15 @@ class ExceptionRecord(Base):
 class AuditBundle(Base):
     __tablename__ = "audit_bundles"
 
-    id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    id: Mapped[uuid.UUID] = mapped_column(Uuid(as_uuid=True), primary_key=True, default=uuid.uuid4)
     bundle_id: Mapped[str] = mapped_column(String(100), unique=True, nullable=False)
     title: Mapped[str] = mapped_column(String(500), nullable=False)
     generated_by: Mapped[str | None] = mapped_column(String(200))
     framework: Mapped[str | None] = mapped_column(String(100))
     release_id: Mapped[uuid.UUID | None] = mapped_column(
-        UUID(as_uuid=True), ForeignKey("releases.id")
+        Uuid(as_uuid=True), ForeignKey("releases.id")
     )
-    content: Mapped[dict | None] = mapped_column(JSONB)  # full bundle JSON
+    content: Mapped[dict | None] = mapped_column(JSON)  # full bundle JSON
     generated_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), server_default=func.now()
     )

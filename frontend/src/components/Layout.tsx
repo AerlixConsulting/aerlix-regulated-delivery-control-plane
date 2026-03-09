@@ -65,7 +65,7 @@ export default function Layout() {
         <div className="p-4 border-t border-slate-800">
           <div className="text-xs text-slate-500">
             <div className="font-medium text-slate-400">Aerlix Consulting</div>
-            <div>v0.1.0 — NIST 800-53 Rev5</div>
+            <div>v0.2.0 — NIST 800-53 Rev5</div>
           </div>
         </div>
       </aside>

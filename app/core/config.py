@@ -17,7 +17,7 @@ class Settings(BaseSettings):
 
     # Application
     app_name: str = "Aerlix Control Plane"
-    app_version: str = "0.1.0"
+    app_version: str = "0.2.0"
     app_env: Literal["development", "testing", "staging", "production"] = "development"
     debug: bool = False
     log_level: str = "INFO"
