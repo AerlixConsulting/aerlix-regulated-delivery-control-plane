@@ -1,0 +1,81 @@
+{
+  "release_report": {
+    "release_id": "REL-001",
+    "name": "PaymentsAPI v2.4.1 — Production Release",
+    "version": "2.4.1",
+    "status": "approved",
+    "target_env": "production",
+    "compliance_score": 92.5,
+    "generated_at": "2025-12-01T12:00:00Z",
+    "policy_evaluation": {
+      "overall_passed": true,
+      "blocking_failures": 0,
+      "total_checks": 9,
+      "compliance_score": 92.5,
+      "checks": [
+        {
+          "rule_id": "RULE-001",
+          "rule_name": "All artifacts must have an SBOM",
+          "passed": true,
+          "blocking": true,
+          "severity": "critical",
+          "message": "1/1 artifacts have SBOM (required: 100%)."
+        },
+        {
+          "rule_id": "RULE-002",
+          "rule_name": "All artifacts must have provenance",
+          "passed": true,
+          "blocking": true,
+          "severity": "high",
+          "message": "1/1 artifacts have provenance."
+        },
+        {
+          "rule_id": "RULE-003",
+          "rule_name": "No critical vulnerabilities",
+          "passed": true,
+          "blocking": true,
+          "severity": "critical",
+          "message": "Total critical vulnerabilities: 0 (max allowed: 0)."
+        },
+        {
+          "rule_id": "RULE-004",
+          "rule_name": "High vulnerabilities below threshold",
+          "passed": true,
+          "blocking": true,
+          "severity": "high",
+          "message": "Total high vulnerabilities: 1 (max allowed: 3)."
+        },
+        {
+          "rule_id": "RULE-007",
+          "rule_name": "Evidence freshness within 90 days",
+          "passed": false,
+          "blocking": false,
+          "severity": "medium",
+          "message": "1 evidence item(s) older than 90 days.",
+          "details": {
+            "stale_evidence": ["EV-007"],
+            "max_age_days": 90
+          }
+        }
+      ]
+    },
+    "artifacts": [
+      {
+        "artifact_id": "ART-001",
+        "name": "payments-api",
+        "version": "2.4.1",
+        "type": "container",
+        "registry": "ghcr.io/example/payments-api:2.4.1",
+        "digest": "sha256:a1b2c3d4e5f6a1b2c3d4e5f6",
+        "has_sbom": true,
+        "has_provenance": true,
+        "has_signature": true,
+        "critical_vulns": 0,
+        "high_vulns": 1
+      }
+    ],
+    "requirements_covered": ["REQ-001", "REQ-002", "REQ-003", "REQ-005", "REQ-006"],
+    "controls_satisfied": ["AC-2", "AC-3", "AU-6", "CA-7", "CM-3", "RA-5", "SI-2"],
+    "open_exceptions": []
+  }
+}

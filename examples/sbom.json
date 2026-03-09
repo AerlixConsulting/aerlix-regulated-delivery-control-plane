@@ -1,0 +1,86 @@
+{
+  "bomFormat": "CycloneDX",
+  "specVersion": "1.6",
+  "serialNumber": "urn:uuid:a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+  "version": 1,
+  "metadata": {
+    "timestamp": "2025-12-01T10:00:00Z",
+    "tools": [
+      {
+        "vendor": "anchore",
+        "name": "syft",
+        "version": "1.4.1"
+      }
+    ],
+    "component": {
+      "type": "container",
+      "name": "payments-api",
+      "version": "2.4.1",
+      "purl": "pkg:oci/payments-api@sha256:a1b2c3d4e5f6",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2"
+        }
+      ]
+    }
+  },
+  "components": [
+    {
+      "type": "library",
+      "name": "fastapi",
+      "version": "0.111.0",
+      "purl": "pkg:pypi/fastapi@0.111.0",
+      "licenses": [{ "license": { "id": "MIT" } }]
+    },
+    {
+      "type": "library",
+      "name": "pydantic",
+      "version": "2.7.4",
+      "purl": "pkg:pypi/pydantic@2.7.4",
+      "licenses": [{ "license": { "id": "MIT" } }]
+    },
+    {
+      "type": "library",
+      "name": "sqlalchemy",
+      "version": "2.0.31",
+      "purl": "pkg:pypi/sqlalchemy@2.0.31",
+      "licenses": [{ "license": { "id": "MIT" } }]
+    },
+    {
+      "type": "library",
+      "name": "uvicorn",
+      "version": "0.30.0",
+      "purl": "pkg:pypi/uvicorn@0.30.0",
+      "licenses": [{ "license": { "id": "BSD-3-Clause" } }]
+    },
+    {
+      "type": "library",
+      "name": "cryptography",
+      "version": "42.0.8",
+      "purl": "pkg:pypi/cryptography@42.0.8",
+      "licenses": [{ "license": { "id": "Apache-2.0" } }]
+    },
+    {
+      "type": "library",
+      "name": "python-jose",
+      "version": "3.3.0",
+      "purl": "pkg:pypi/python-jose@3.3.0",
+      "licenses": [{ "license": { "id": "MIT" } }]
+    },
+    {
+      "type": "library",
+      "name": "passlib",
+      "version": "1.7.4",
+      "purl": "pkg:pypi/passlib@1.7.4",
+      "licenses": [{ "license": { "id": "BSD-2-Clause" } }]
+    },
+    {
+      "type": "library",
+      "name": "asyncpg",
+      "version": "0.29.0",
+      "purl": "pkg:pypi/asyncpg@0.29.0",
+      "licenses": [{ "license": { "id": "Apache-2.0" } }]
+    }
+  ]
+}

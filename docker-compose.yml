@@ -1,0 +1,96 @@
+version: "3.9"
+
+services:
+  db:
+    image: postgres:16-alpine
+    container_name: aerlix_db
+    environment:
+      POSTGRES_USER: aerlix
+      POSTGRES_PASSWORD: aerlix_dev_password
+      POSTGRES_DB: aerlix_control_plane
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U aerlix -d aerlix_control_plane"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  redis:
+    image: redis:7-alpine
+    container_name: aerlix_redis
+    ports:
+      - "6379:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: aerlix_api
+    env_file: .env
+    environment:
+      DATABASE_URL: postgresql+asyncpg://aerlix:aerlix_dev_password@db:5432/aerlix_control_plane
+      DATABASE_URL_SYNC: postgresql://aerlix:aerlix_dev_password@db:5432/aerlix_control_plane
+      REDIS_URL: redis://redis:6379/0
+    ports:
+      - "8000:8000"
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    volumes:
+      - ./app:/app/app
+      - ./sample_data:/app/sample_data
+      - ./examples:/app/examples
+    command: uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
+
+  worker:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: aerlix_worker
+    env_file: .env
+    environment:
+      DATABASE_URL: postgresql+asyncpg://aerlix:aerlix_dev_password@db:5432/aerlix_control_plane
+      DATABASE_URL_SYNC: postgresql://aerlix:aerlix_dev_password@db:5432/aerlix_control_plane
+      REDIS_URL: redis://redis:6379/0
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    command: celery -A app.worker worker --loglevel=info
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: aerlix_frontend
+    ports:
+      - "3000:3000"
+    depends_on:
+      - api
+    environment:
+      VITE_API_BASE_URL: http://localhost:8000
+
+  pgadmin:
+    image: dpage/pgadmin4:8
+    container_name: aerlix_pgadmin
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@aerlix.io
+      PGADMIN_DEFAULT_PASSWORD: admin
+    ports:
+      - "5050:80"
+    depends_on:
+      - db
+
+volumes:
+  postgres_data:

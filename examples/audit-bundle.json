@@ -1,0 +1,93 @@
+{
+  "bundle_metadata": {
+    "bundle_id": "BUNDLE-A1B2C3D4E5F6",
+    "title": "Audit Bundle — NIST-800-53-Rev5",
+    "release_id": "REL-001",
+    "framework": "NIST-800-53-Rev5",
+    "generated_by": "aerlix-control-plane",
+    "generated_at": "2025-12-01T12:00:00Z",
+    "schema_version": "1.0"
+  },
+  "control_summary": {
+    "total_controls": 8,
+    "status_breakdown": {
+      "implemented": 7,
+      "partially_implemented": 1
+    },
+    "implemented_count": 7,
+    "not_implemented_count": 0,
+    "controls": [
+      { "control_id": "AC-2", "title": "Account Management", "family": "Access Control", "status": "implemented", "baseline": "low" },
+      { "control_id": "AC-3", "title": "Access Enforcement", "family": "Access Control", "status": "implemented", "baseline": "low" },
+      { "control_id": "AU-6", "title": "Audit Record Review", "family": "Audit and Accountability", "status": "implemented", "baseline": "low" },
+      { "control_id": "CA-7", "title": "Continuous Monitoring", "family": "Assessment, Authorization, and Monitoring", "status": "implemented", "baseline": "low" },
+      { "control_id": "CM-3", "title": "Configuration Change Control", "family": "Configuration Management", "status": "implemented", "baseline": "moderate" },
+      { "control_id": "RA-5", "title": "Vulnerability Monitoring and Scanning", "family": "Risk Assessment", "status": "implemented", "baseline": "moderate" },
+      { "control_id": "SI-2", "title": "Flaw Remediation", "family": "System and Information Integrity", "status": "implemented", "baseline": "low" },
+      { "control_id": "SA-10", "title": "Developer Configuration Management", "family": "System and Services Acquisition", "status": "partially_implemented", "baseline": "moderate" }
+    ]
+  },
+  "evidence_index": {
+    "total_evidence_items": 15,
+    "by_type": {
+      "ci_run": 1,
+      "test_result": 2,
+      "static_analysis": 2,
+      "dependency_scan": 2,
+      "iac_scan": 1,
+      "deployment_log": 1,
+      "manual_upload": 4,
+      "audit_log": 2
+    },
+    "by_status": {
+      "valid": 12,
+      "rejected": 1,
+      "expired": 1,
+      "pending": 1
+    }
+  },
+  "release_readiness": {
+    "release_id": "REL-001",
+    "version": "2.4.1",
+    "status": "approved",
+    "artifact_count": 1,
+    "artifacts_with_sbom": 1,
+    "artifacts_with_provenance": 1,
+    "critical_vulns_total": 0,
+    "high_vulns_total": 1
+  },
+  "gaps": {
+    "untested_requirements": ["REQ-007", "REQ-008"],
+    "unmapped_requirements": [],
+    "controls_without_evidence": [],
+    "artifacts_missing_sbom": [],
+    "artifacts_missing_provenance": [],
+    "total_gaps": 2
+  },
+  "exception_register": {
+    "total_exceptions": 1,
+    "open_exceptions": 0,
+    "exceptions": [
+      {
+        "exception_id": "EXC-001",
+        "title": "Penetration test older than 90 days",
+        "status": "approved",
+        "approver": "CISO — Jane Smith",
+        "expires_at": "2026-02-15T00:00:00Z",
+        "justification": "Quarterly pentest scheduled. WAF and IDS compensating controls active."
+      }
+    ]
+  },
+  "incident_summary": {
+    "total_incidents": 1,
+    "open_incidents": 0,
+    "incidents": [
+      {
+        "incident_id": "INC-001",
+        "title": "Log4Shell exposure identified in legacy dependency",
+        "severity": "critical",
+        "status": "contained"
+      }
+    ]
+  }
+}
