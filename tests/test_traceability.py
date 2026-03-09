@@ -1,6 +1,5 @@
 """Tests for the TraceabilityEngine."""
 
-
 from app.services.traceability import TraceabilityEngine, build_engine_from_db_data
 
 

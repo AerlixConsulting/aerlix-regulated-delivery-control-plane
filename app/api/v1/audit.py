@@ -21,9 +21,7 @@ async def _build_exporter(db: AsyncSession, release_id: str | None = None) -> Au
     exporter = AuditExporter(release_id=release_id)
 
     # Controls
-    ctrl_result = await db.execute(
-        select(Control).options(selectinload(Control.evidence_items))
-    )
+    ctrl_result = await db.execute(select(Control).options(selectinload(Control.evidence_items)))
     controls = ctrl_result.scalars().all()
     exporter.add_controls(
         [
@@ -33,9 +31,7 @@ async def _build_exporter(db: AsyncSession, release_id: str | None = None) -> Au
                 "family": c.family,
                 "baseline": c.baseline,
                 "status": (
-                    c.implementations[0].status.value
-                    if c.implementations
-                    else "not_implemented"
+                    c.implementations[0].status.value if c.implementations else "not_implemented"
                 ),
                 "evidence_items": [
                     {"evidence_id": e.evidence_id, "title": e.title} for e in c.evidence_items
@@ -182,10 +178,7 @@ async def audit_summary(db: DbDep) -> dict:
     ev_index = bundle["evidence_index"]
     exc_reg = bundle["exception_register"]
 
-    total_possible = (
-        ctrl_summary["total_controls"]
-        + ev_index["total_evidence_items"]
-    )
+    total_possible = ctrl_summary["total_controls"] + ev_index["total_evidence_items"]
     if total_possible:
         implemented = ctrl_summary["implemented_count"]
         valid_ev = ev_index.get("by_status", {}).get("valid", 0)

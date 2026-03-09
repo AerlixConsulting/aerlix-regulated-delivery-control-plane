@@ -129,9 +129,7 @@ release_requirement_link = Table(
     "release_requirement_link",
     Base.metadata,
     Column("release_id", UUID(as_uuid=True), ForeignKey("releases.id"), primary_key=True),
-    Column(
-        "requirement_id", UUID(as_uuid=True), ForeignKey("requirements.id"), primary_key=True
-    ),
+    Column("requirement_id", UUID(as_uuid=True), ForeignKey("requirements.id"), primary_key=True),
 )
 
 release_evidence_link = Table(
@@ -150,9 +148,7 @@ release_evidence_link = Table(
 class Owner(Base):
     __tablename__ = "owners"
 
-    id: Mapped[uuid.UUID] = mapped_column(
-        UUID(as_uuid=True), primary_key=True, default=uuid.uuid4
-    )
+    id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     name: Mapped[str] = mapped_column(String(200), nullable=False)
     email: Mapped[str | None] = mapped_column(String(200))
     role: Mapped[str | None] = mapped_column(String(100))
@@ -167,16 +163,12 @@ class Owner(Base):
 class SystemComponent(Base):
     __tablename__ = "system_components"
 
-    id: Mapped[uuid.UUID] = mapped_column(
-        UUID(as_uuid=True), primary_key=True, default=uuid.uuid4
-    )
+    id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     name: Mapped[str] = mapped_column(String(200), nullable=False)
     component_type: Mapped[str] = mapped_column(String(100))  # service, library, db, infra
     description: Mapped[str | None] = mapped_column(Text)
     version: Mapped[str | None] = mapped_column(String(50))
-    owner_id: Mapped[uuid.UUID | None] = mapped_column(
-        UUID(as_uuid=True), ForeignKey("owners.id")
-    )
+    owner_id: Mapped[uuid.UUID | None] = mapped_column(UUID(as_uuid=True), ForeignKey("owners.id"))
     metadata_: Mapped[dict | None] = mapped_column("metadata", JSONB, default=dict)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
     updated_at: Mapped[datetime] = mapped_column(
@@ -196,9 +188,7 @@ class SystemComponent(Base):
 class Requirement(Base):
     __tablename__ = "requirements"
 
-    id: Mapped[uuid.UUID] = mapped_column(
-        UUID(as_uuid=True), primary_key=True, default=uuid.uuid4
-    )
+    id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     req_id: Mapped[str] = mapped_column(String(50), unique=True, nullable=False)  # e.g. REQ-001
     title: Mapped[str] = mapped_column(String(500), nullable=False)
     description: Mapped[str | None] = mapped_column(Text)
@@ -210,9 +200,7 @@ class Requirement(Base):
     )
     priority: Mapped[str | None] = mapped_column(String(20))  # critical, high, medium, low
     source: Mapped[str | None] = mapped_column(String(200))  # regulatory source / standard
-    owner_id: Mapped[uuid.UUID | None] = mapped_column(
-        UUID(as_uuid=True), ForeignKey("owners.id")
-    )
+    owner_id: Mapped[uuid.UUID | None] = mapped_column(UUID(as_uuid=True), ForeignKey("owners.id"))
     parent_id: Mapped[uuid.UUID | None] = mapped_column(
         UUID(as_uuid=True), ForeignKey("requirements.id")
     )
@@ -243,9 +231,7 @@ class Requirement(Base):
 class Control(Base):
     __tablename__ = "controls"
 
-    id: Mapped[uuid.UUID] = mapped_column(
-        UUID(as_uuid=True), primary_key=True, default=uuid.uuid4
-    )
+    id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     control_id: Mapped[str] = mapped_column(String(50), unique=True, nullable=False)  # e.g. AC-2
     family: Mapped[str] = mapped_column(String(100))  # Access Control, Audit, etc.
     title: Mapped[str] = mapped_column(String(500), nullable=False)
@@ -260,9 +246,7 @@ class Control(Base):
     requirements: Mapped[list["Requirement"]] = relationship(
         secondary=requirement_control_link, back_populates="controls"
     )
-    implementations: Mapped[list["ControlImplementation"]] = relationship(
-        back_populates="control"
-    )
+    implementations: Mapped[list["ControlImplementation"]] = relationship(back_populates="control")
     evidence_items: Mapped[list["EvidenceItem"]] = relationship(back_populates="control")
 
 
@@ -270,9 +254,7 @@ class ControlImplementation(Base):
     __tablename__ = "control_implementations"
     __table_args__ = (UniqueConstraint("control_id", "component_id"),)
 
-    id: Mapped[uuid.UUID] = mapped_column(
-        UUID(as_uuid=True), primary_key=True, default=uuid.uuid4
-    )
+    id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     control_id: Mapped[uuid.UUID] = mapped_column(
         UUID(as_uuid=True), ForeignKey("controls.id"), nullable=False
     )
@@ -302,9 +284,7 @@ class ControlImplementation(Base):
 class EvidenceItem(Base):
     __tablename__ = "evidence_items"
 
-    id: Mapped[uuid.UUID] = mapped_column(
-        UUID(as_uuid=True), primary_key=True, default=uuid.uuid4
-    )
+    id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     evidence_id: Mapped[str] = mapped_column(String(100), unique=True, nullable=False)
     title: Mapped[str] = mapped_column(String(500), nullable=False)
     evidence_type: Mapped[EvidenceType] = mapped_column(Enum(EvidenceType))
@@ -314,7 +294,9 @@ class EvidenceItem(Base):
     source_system: Mapped[str | None] = mapped_column(String(200))  # GitHub Actions, Jenkins, etc.
     source_url: Mapped[str | None] = mapped_column(String(1000))
     content_hash: Mapped[str | None] = mapped_column(String(64))  # SHA-256
-    collected_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
+    collected_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), server_default=func.now()
+    )
     expires_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
     metadata_: Mapped[dict | None] = mapped_column("metadata", JSONB, default=dict)
     control_id: Mapped[uuid.UUID | None] = mapped_column(
@@ -336,9 +318,7 @@ class EvidenceItem(Base):
 class TestCase(Base):
     __tablename__ = "test_cases"
 
-    id: Mapped[uuid.UUID] = mapped_column(
-        UUID(as_uuid=True), primary_key=True, default=uuid.uuid4
-    )
+    id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     test_id: Mapped[str] = mapped_column(String(100), unique=True, nullable=False)
     name: Mapped[str] = mapped_column(String(500), nullable=False)
     description: Mapped[str | None] = mapped_column(Text)
@@ -361,9 +341,7 @@ class TestCase(Base):
 class BuildArtifact(Base):
     __tablename__ = "build_artifacts"
 
-    id: Mapped[uuid.UUID] = mapped_column(
-        UUID(as_uuid=True), primary_key=True, default=uuid.uuid4
-    )
+    id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     artifact_id: Mapped[str] = mapped_column(String(200), unique=True, nullable=False)
     name: Mapped[str] = mapped_column(String(500), nullable=False)
     artifact_type: Mapped[str] = mapped_column(String(100))  # container, package, binary
@@ -390,9 +368,7 @@ class BuildArtifact(Base):
 class SBOMRecord(Base):
     __tablename__ = "sbom_records"
 
-    id: Mapped[uuid.UUID] = mapped_column(
-        UUID(as_uuid=True), primary_key=True, default=uuid.uuid4
-    )
+    id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     sbom_id: Mapped[str] = mapped_column(String(200), unique=True, nullable=False)
     format: Mapped[str] = mapped_column(String(50))  # cyclonedx, spdx
     spec_version: Mapped[str | None] = mapped_column(String(20))
@@ -404,7 +380,9 @@ class SBOMRecord(Base):
         UUID(as_uuid=True), ForeignKey("system_components.id")
     )
     raw_content: Mapped[dict | None] = mapped_column(JSONB)
-    ingested_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
+    ingested_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), server_default=func.now()
+    )
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
 
     artifact: Mapped["BuildArtifact | None"] = relationship(back_populates="sbom_records")
@@ -414,9 +392,7 @@ class SBOMRecord(Base):
 class ProvenanceRecord(Base):
     __tablename__ = "provenance_records"
 
-    id: Mapped[uuid.UUID] = mapped_column(
-        UUID(as_uuid=True), primary_key=True, default=uuid.uuid4
-    )
+    id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     artifact_id: Mapped[uuid.UUID] = mapped_column(
         UUID(as_uuid=True), ForeignKey("build_artifacts.id"), nullable=False
     )
@@ -440,16 +416,12 @@ class ProvenanceRecord(Base):
 class Release(Base):
     __tablename__ = "releases"
 
-    id: Mapped[uuid.UUID] = mapped_column(
-        UUID(as_uuid=True), primary_key=True, default=uuid.uuid4
-    )
+    id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     release_id: Mapped[str] = mapped_column(String(100), unique=True, nullable=False)
     name: Mapped[str] = mapped_column(String(500), nullable=False)
     version: Mapped[str] = mapped_column(String(100), nullable=False)
     description: Mapped[str | None] = mapped_column(Text)
-    status: Mapped[ReleaseStatus] = mapped_column(
-        Enum(ReleaseStatus), default=ReleaseStatus.DRAFT
-    )
+    status: Mapped[ReleaseStatus] = mapped_column(Enum(ReleaseStatus), default=ReleaseStatus.DRAFT)
     component_id: Mapped[uuid.UUID | None] = mapped_column(
         UUID(as_uuid=True), ForeignKey("system_components.id")
     )
@@ -477,14 +449,14 @@ class Release(Base):
 class Deployment(Base):
     __tablename__ = "deployments"
 
-    id: Mapped[uuid.UUID] = mapped_column(
-        UUID(as_uuid=True), primary_key=True, default=uuid.uuid4
-    )
+    id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     release_id: Mapped[uuid.UUID] = mapped_column(
         UUID(as_uuid=True), ForeignKey("releases.id"), nullable=False
     )
     environment: Mapped[str] = mapped_column(String(100))  # dev, staging, prod
-    deployed_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
+    deployed_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), server_default=func.now()
+    )
     deployed_by: Mapped[str | None] = mapped_column(String(200))
     deployment_url: Mapped[str | None] = mapped_column(String(1000))
     success: Mapped[bool] = mapped_column(Boolean, default=True)
@@ -501,16 +473,12 @@ class Deployment(Base):
 class PolicyRule(Base):
     __tablename__ = "policy_rules"
 
-    id: Mapped[uuid.UUID] = mapped_column(
-        UUID(as_uuid=True), primary_key=True, default=uuid.uuid4
-    )
+    id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     rule_id: Mapped[str] = mapped_column(String(100), unique=True, nullable=False)
     name: Mapped[str] = mapped_column(String(500), nullable=False)
     description: Mapped[str | None] = mapped_column(Text)
     category: Mapped[str | None] = mapped_column(String(100))  # supply-chain, compliance, etc.
-    severity: Mapped[SeverityLevel] = mapped_column(
-        Enum(SeverityLevel), default=SeverityLevel.HIGH
-    )
+    severity: Mapped[SeverityLevel] = mapped_column(Enum(SeverityLevel), default=SeverityLevel.HIGH)
     enabled: Mapped[bool] = mapped_column(Boolean, default=True)
     blocking: Mapped[bool] = mapped_column(Boolean, default=True)
     rule_config: Mapped[dict | None] = mapped_column(JSONB, default=dict)
@@ -528,9 +496,7 @@ class PolicyRule(Base):
 class Incident(Base):
     __tablename__ = "incidents"
 
-    id: Mapped[uuid.UUID] = mapped_column(
-        UUID(as_uuid=True), primary_key=True, default=uuid.uuid4
-    )
+    id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     incident_id: Mapped[str] = mapped_column(String(100), unique=True, nullable=False)
     title: Mapped[str] = mapped_column(String(500), nullable=False)
     description: Mapped[str | None] = mapped_column(Text)
@@ -544,7 +510,9 @@ class Incident(Base):
     affected_control_id: Mapped[uuid.UUID | None] = mapped_column(
         UUID(as_uuid=True), ForeignKey("controls.id")
     )
-    detected_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
+    detected_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), server_default=func.now()
+    )
     resolved_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
 
@@ -554,9 +522,7 @@ class Incident(Base):
 class ExceptionRecord(Base):
     __tablename__ = "exception_records"
 
-    id: Mapped[uuid.UUID] = mapped_column(
-        UUID(as_uuid=True), primary_key=True, default=uuid.uuid4
-    )
+    id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     exception_id: Mapped[str] = mapped_column(String(100), unique=True, nullable=False)
     title: Mapped[str] = mapped_column(String(500), nullable=False)
     justification: Mapped[str | None] = mapped_column(Text)
@@ -592,9 +558,7 @@ class ExceptionRecord(Base):
 class AuditBundle(Base):
     __tablename__ = "audit_bundles"
 
-    id: Mapped[uuid.UUID] = mapped_column(
-        UUID(as_uuid=True), primary_key=True, default=uuid.uuid4
-    )
+    id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     bundle_id: Mapped[str] = mapped_column(String(100), unique=True, nullable=False)
     title: Mapped[str] = mapped_column(String(500), nullable=False)
     generated_by: Mapped[str | None] = mapped_column(String(200))
@@ -603,4 +567,6 @@ class AuditBundle(Base):
         UUID(as_uuid=True), ForeignKey("releases.id")
     )
     content: Mapped[dict | None] = mapped_column(JSONB)  # full bundle JSON
-    generated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
+    generated_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), server_default=func.now()
+    )

@@ -137,9 +137,7 @@ class TraceabilityEngine:
             if data.get("node_type") != "requirement":
                 continue
             successors = list(self.graph.successors(node))
-            has_test = any(
-                self.graph.nodes[s].get("node_type") == "test_case" for s in successors
-            )
+            has_test = any(self.graph.nodes[s].get("node_type") == "test_case" for s in successors)
             if not has_test:
                 result.append(node)
         return result
@@ -151,9 +149,7 @@ class TraceabilityEngine:
             if data.get("node_type") != "requirement":
                 continue
             successors = list(self.graph.successors(node))
-            has_control = any(
-                self.graph.nodes[s].get("node_type") == "control" for s in successors
-            )
+            has_control = any(self.graph.nodes[s].get("node_type") == "control" for s in successors)
             if not has_control:
                 result.append(node)
         return result
@@ -254,13 +250,8 @@ class TraceabilityEngine:
     def to_dict(self) -> dict[str, Any]:
         """Export graph as plain dict for JSON serialization."""
         return {
-            "nodes": [
-                {"id": n, **d} for n, d in self.graph.nodes(data=True)
-            ],
-            "edges": [
-                {"source": u, "target": v, **d}
-                for u, v, d in self.graph.edges(data=True)
-            ],
+            "nodes": [{"id": n, **d} for n, d in self.graph.nodes(data=True)],
+            "edges": [{"source": u, "target": v, **d} for u, v, d in self.graph.edges(data=True)],
             "stats": self.coverage_stats(),
         }
 

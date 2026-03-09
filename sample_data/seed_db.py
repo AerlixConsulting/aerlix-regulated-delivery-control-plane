@@ -584,9 +584,7 @@ async def seed(force: bool = False) -> None:
         # ----- Test Cases -----
         test_map: dict[str, TestCase] = {}
         for t in TEST_CASES:
-            existing = await db.execute(
-                select(TestCase).where(TestCase.test_id == t["test_id"])
-            )
+            existing = await db.execute(select(TestCase).where(TestCase.test_id == t["test_id"]))
             tc = existing.scalar_one_or_none()
             if not tc:
                 req_id_str = t.pop("req_id")
@@ -620,9 +618,9 @@ async def seed(force: bool = False) -> None:
                     ctrl = controls.get(ctrl_id_str)
                     if ctrl:
                         await db.execute(
-                            requirement_control_link.insert().values(
-                                requirement_id=req.id, control_id=ctrl.id
-                            ).prefix_with("ON CONFLICT DO NOTHING")
+                            requirement_control_link.insert()
+                            .values(requirement_id=req.id, control_id=ctrl.id)
+                            .prefix_with("ON CONFLICT DO NOTHING")
                         )
             req_map[r["req_id"]] = req
 
@@ -724,29 +722,44 @@ async def seed(force: bool = False) -> None:
             art1.release_id = rel1.id
 
             # Link requirements
-            for req_id_str in ["REQ-001", "REQ-002", "REQ-003", "REQ-005", "REQ-006", "REQ-011", "REQ-012"]:
+            for req_id_str in [
+                "REQ-001",
+                "REQ-002",
+                "REQ-003",
+                "REQ-005",
+                "REQ-006",
+                "REQ-011",
+                "REQ-012",
+            ]:
                 req = req_map.get(req_id_str)
                 if req:
                     await db.execute(
-                        release_requirement_link.insert().values(
-                            release_id=rel1.id, requirement_id=req.id
-                        ).prefix_with("ON CONFLICT DO NOTHING")
+                        release_requirement_link.insert()
+                        .values(release_id=rel1.id, requirement_id=req.id)
+                        .prefix_with("ON CONFLICT DO NOTHING")
                     )
 
             # Link evidence
-            for ev_id in ["EV-001", "EV-002", "EV-003", "EV-004", "EV-008", "EV-009", "EV-010", "EV-012"]:
+            for ev_id in [
+                "EV-001",
+                "EV-002",
+                "EV-003",
+                "EV-004",
+                "EV-008",
+                "EV-009",
+                "EV-010",
+                "EV-012",
+            ]:
                 ev = evidence_map.get(ev_id)
                 if ev:
                     await db.execute(
-                        release_evidence_link.insert().values(
-                            release_id=rel1.id, evidence_id=ev.id
-                        ).prefix_with("ON CONFLICT DO NOTHING")
+                        release_evidence_link.insert()
+                        .values(release_id=rel1.id, evidence_id=ev.id)
+                        .prefix_with("ON CONFLICT DO NOTHING")
                     )
 
         # Deployment for REL-001
-        existing = await db.execute(
-            select(Deployment).where(Deployment.release_id == rel1.id)
-        )
+        existing = await db.execute(select(Deployment).where(Deployment.release_id == rel1.id))
         if not existing.scalar_one_or_none():
             dep = Deployment(
                 release_id=rel1.id,
@@ -787,15 +800,13 @@ async def seed(force: bool = False) -> None:
                 req = req_map.get(req_id_str)
                 if req:
                     await db.execute(
-                        release_requirement_link.insert().values(
-                            release_id=rel2.id, requirement_id=req.id
-                        ).prefix_with("ON CONFLICT DO NOTHING")
+                        release_requirement_link.insert()
+                        .values(release_id=rel2.id, requirement_id=req.id)
+                        .prefix_with("ON CONFLICT DO NOTHING")
                     )
 
         # ----- Incidents -----
-        existing = await db.execute(
-            select(Incident).where(Incident.incident_id == "INC-001")
-        )
+        existing = await db.execute(select(Incident).where(Incident.incident_id == "INC-001"))
         incident = existing.scalar_one_or_none()
         if not incident:
             incident = Incident(
@@ -866,8 +877,10 @@ async def seed(force: bool = False) -> None:
 
         await db.commit()
         logger.info("✅ Demo data seeded successfully.")
-        print("✅ Demo data seeded: 3 owners, 3 components, 8 controls, 12 requirements, "
-              "15 evidence items, 5 test cases, 2 releases, 1 incident, 1 exception.")
+        print(
+            "✅ Demo data seeded: 3 owners, 3 components, 8 controls, 12 requirements, "
+            "15 evidence items, 5 test cases, 2 releases, 1 incident, 1 exception."
+        )
 
 
 if __name__ == "__main__":

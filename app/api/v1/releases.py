@@ -51,9 +51,7 @@ async def get_release(release_id: str, db: DbDep) -> Release:
 
 @router.post("", response_model=ReleaseRead, status_code=status.HTTP_201_CREATED)
 async def create_release(payload: ReleaseCreate, db: DbDep) -> Release:
-    existing = await db.execute(
-        select(Release).where(Release.release_id == payload.release_id)
-    )
+    existing = await db.execute(select(Release).where(Release.release_id == payload.release_id))
     if existing.scalar_one_or_none():
         raise HTTPException(
             status_code=status.HTTP_409_CONFLICT,

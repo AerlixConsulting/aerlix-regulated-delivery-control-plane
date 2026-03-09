@@ -58,9 +58,7 @@ async def get_requirement(req_id: str, db: DbDep) -> Requirement:
 
 @router.post("", response_model=RequirementRead, status_code=status.HTTP_201_CREATED)
 async def create_requirement(payload: RequirementCreate, db: DbDep) -> Requirement:
-    existing = await db.execute(
-        select(Requirement).where(Requirement.req_id == payload.req_id)
-    )
+    existing = await db.execute(select(Requirement).where(Requirement.req_id == payload.req_id))
     if existing.scalar_one_or_none():
         raise HTTPException(
             status_code=status.HTTP_409_CONFLICT,
