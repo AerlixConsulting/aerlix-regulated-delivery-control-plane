@@ -222,6 +222,10 @@ class Requirement(Base):
         secondary=release_requirement_link, back_populates="requirements"
     )
 
+    @property
+    def is_completed(self) -> bool:
+        return self.status in {RequirementStatus.VERIFIED, RequirementStatus.DEPRECATED}
+
 
 # ---------------------------------------------------------------------------
 # Control
