@@ -36,9 +36,7 @@ async def list_evidence(
 
 @router.get("/{evidence_id}", response_model=EvidenceItemRead)
 async def get_evidence(evidence_id: str, db: DbDep) -> EvidenceItem:
-    result = await db.execute(
-        select(EvidenceItem).where(EvidenceItem.evidence_id == evidence_id)
-    )
+    result = await db.execute(select(EvidenceItem).where(EvidenceItem.evidence_id == evidence_id))
     ev = result.scalar_one_or_none()
     if ev is None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Evidence item not found")
@@ -67,9 +65,7 @@ async def create_evidence(payload: EvidenceItemCreate, db: DbDep) -> EvidenceIte
 
 @router.put("/{evidence_id}", response_model=EvidenceItemRead)
 async def update_evidence(evidence_id: str, payload: EvidenceItemCreate, db: DbDep) -> EvidenceItem:
-    result = await db.execute(
-        select(EvidenceItem).where(EvidenceItem.evidence_id == evidence_id)
-    )
+    result = await db.execute(select(EvidenceItem).where(EvidenceItem.evidence_id == evidence_id))
     ev = result.scalar_one_or_none()
     if ev is None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Evidence item not found")
@@ -83,9 +79,7 @@ async def update_evidence(evidence_id: str, payload: EvidenceItemCreate, db: DbD
 
 @router.delete("/{evidence_id}", status_code=status.HTTP_204_NO_CONTENT)
 async def delete_evidence(evidence_id: str, db: DbDep) -> None:
-    result = await db.execute(
-        select(EvidenceItem).where(EvidenceItem.evidence_id == evidence_id)
-    )
+    result = await db.execute(select(EvidenceItem).where(EvidenceItem.evidence_id == evidence_id))
     ev = result.scalar_one_or_none()
     if ev is None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Evidence item not found")

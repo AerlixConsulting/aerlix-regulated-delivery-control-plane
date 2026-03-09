@@ -184,9 +184,7 @@ class AuditExporter:
     ) -> list[dict[str, Any]]:
         rows = []
         for req in requirements:
-            linked_controls = [
-                c.get("control_id") for c in req.get("controls", [])
-            ]
+            linked_controls = [c.get("control_id") for c in req.get("controls", [])]
             linked_tests = [t.get("test_id") for t in req.get("test_cases", [])]
             rows.append(
                 {
@@ -208,30 +206,14 @@ class AuditExporter:
         evidence: list[dict],
         artifacts: list[dict],
     ) -> dict[str, Any]:
-        untested_reqs = [
-            r.get("req_id")
-            for r in requirements
-            if not r.get("test_cases")
-        ]
-        unmapped_reqs = [
-            r.get("req_id")
-            for r in requirements
-            if not r.get("controls")
-        ]
+        untested_reqs = [r.get("req_id") for r in requirements if not r.get("test_cases")]
+        unmapped_reqs = [r.get("req_id") for r in requirements if not r.get("controls")]
         no_evidence_controls = [
-            c.get("control_id")
-            for c in controls
-            if not c.get("evidence_items")
+            c.get("control_id") for c in controls if not c.get("evidence_items")
         ]
-        artifacts_no_sbom = [
-            a.get("artifact_id")
-            for a in artifacts
-            if not a.get("has_sbom")
-        ]
+        artifacts_no_sbom = [a.get("artifact_id") for a in artifacts if not a.get("has_sbom")]
         artifacts_no_provenance = [
-            a.get("artifact_id")
-            for a in artifacts
-            if not a.get("has_provenance")
+            a.get("artifact_id") for a in artifacts if not a.get("has_provenance")
         ]
 
         return {
@@ -401,9 +383,9 @@ class AuditExporter:
             ]
             for exc in exc_reg["exceptions"]:
                 lines.append(
-                    f"| {exc.get('exception_id','')} | {exc.get('title','')} | "
-                    f"{exc.get('status','')} | {exc.get('approver','')} | "
-                    f"{exc.get('expires_at','')} |"
+                    f"| {exc.get('exception_id', '')} | {exc.get('title', '')} | "
+                    f"{exc.get('status', '')} | {exc.get('approver', '')} | "
+                    f"{exc.get('expires_at', '')} |"
                 )
 
         return "\n".join(lines)

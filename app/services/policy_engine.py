@@ -229,7 +229,7 @@ class PolicyEngine:
         passed = ratio >= threshold
         return (
             passed,
-            f"{with_sbom}/{len(ctx.artifacts)} artifacts have SBOM (required: {threshold*100:.0f}%).",
+            f"{with_sbom}/{len(ctx.artifacts)} artifacts have SBOM (required: {threshold * 100:.0f}%).",
             {"with_sbom": with_sbom, "total": len(ctx.artifacts), "ratio": ratio},
         )
 
@@ -300,9 +300,7 @@ class PolicyEngine:
             {"missing": sorted(missing), "required": sorted(required)},
         )
 
-    def _check_approvals(
-        self, ctx: ReleaseContext, params: dict
-    ) -> tuple[bool, str, dict | None]:
+    def _check_approvals(self, ctx: ReleaseContext, params: dict) -> tuple[bool, str, dict | None]:
         required = set(params.get("required_approvers", ctx.required_approvers))
         present = set(ctx.approvers)
         missing = required - present
@@ -313,9 +311,7 @@ class PolicyEngine:
             {"missing": sorted(missing), "required": sorted(required)},
         )
 
-    def _check_exceptions(
-        self, ctx: ReleaseContext, params: dict
-    ) -> tuple[bool, str, dict | None]:
+    def _check_exceptions(self, ctx: ReleaseContext, params: dict) -> tuple[bool, str, dict | None]:
         open_exc = [e for e in ctx.open_blocking_exceptions if e.get("status") == "open"]
         passed = len(open_exc) == 0
         return (
@@ -356,7 +352,7 @@ class PolicyEngine:
         passed = rate >= min_pass_rate
         return (
             passed,
-            f"Test pass rate: {rate*100:.1f}% (required: {min_pass_rate*100:.0f}%).",
+            f"Test pass rate: {rate * 100:.1f}% (required: {min_pass_rate * 100:.0f}%).",
             {"passed_tests": passed_tests, "total_tests": len(ctx.test_results), "rate": rate},
         )
 

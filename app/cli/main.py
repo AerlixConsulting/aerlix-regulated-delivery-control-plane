@@ -44,6 +44,7 @@ console = Console()
 # Helpers
 # ---------------------------------------------------------------------------
 
+
 def _run(coro):  # type: ignore[no-untyped-def]
     """Run an async coroutine from sync context."""
     return asyncio.run(coro)
@@ -52,12 +53,14 @@ def _run(coro):  # type: ignore[no-untyped-def]
 def _get_db_session():  # type: ignore[no-untyped-def]
     """Return a synchronous-wrapped async DB session context manager."""
     from app.db import AsyncSessionLocal
+
     return AsyncSessionLocal()
 
 
 # ---------------------------------------------------------------------------
 # init-demo
 # ---------------------------------------------------------------------------
+
 
 @app.command("init-demo")
 def init_demo(
@@ -68,6 +71,7 @@ def init_demo(
 
     try:
         import sample_data.seed_db as seeder
+
         _run(seeder.seed(force=force))
         console.print("✅ [green]Demo database seeded successfully.[/green]")
         console.print(
@@ -83,6 +87,7 @@ def init_demo(
 # ---------------------------------------------------------------------------
 # ingest-requirements
 # ---------------------------------------------------------------------------
+
 
 @app.command("ingest-requirements")
 def ingest_requirements(
@@ -103,7 +108,9 @@ def ingest_requirements(
     if dry_run:
         table = Table("req_id", "title", "type", "status")
         for r in reqs:
-            table.add_row(r.get("req_id", ""), r.get("title", ""), r.get("type", ""), r.get("status", ""))
+            table.add_row(
+                r.get("req_id", ""), r.get("title", ""), r.get("type", ""), r.get("status", "")
+            )
         console.print(table)
         return
 
@@ -138,12 +145,15 @@ def ingest_requirements(
             return created, skipped
 
     created, skipped = _run(_ingest())
-    console.print(f"✅ [green]Ingested {created} requirements[/green] ({skipped} skipped — already exist)")
+    console.print(
+        f"✅ [green]Ingested {created} requirements[/green] ({skipped} skipped — already exist)"
+    )
 
 
 # ---------------------------------------------------------------------------
 # ingest-controls
 # ---------------------------------------------------------------------------
+
 
 @app.command("ingest-controls")
 def ingest_controls(
@@ -210,6 +220,7 @@ def ingest_controls(
 # ingest-evidence
 # ---------------------------------------------------------------------------
 
+
 @app.command("ingest-evidence")
 def ingest_evidence(
     path: Path = typer.Argument(..., help="Path to evidence JSON file"),
@@ -272,6 +283,7 @@ def ingest_evidence(
 # ---------------------------------------------------------------------------
 # evaluate-release
 # ---------------------------------------------------------------------------
+
 
 @app.command("evaluate-release")
 def evaluate_release(
@@ -357,7 +369,12 @@ def evaluate_release(
 
     # Per-rule table
     table = Table(
-        "Rule ID", "Name", "Severity", "Blocking", "Result", "Message",
+        "Rule ID",
+        "Name",
+        "Severity",
+        "Blocking",
+        "Result",
+        "Message",
         title="Policy Checks",
         show_lines=True,
     )
@@ -385,6 +402,7 @@ def evaluate_release(
 # generate-audit-bundle
 # ---------------------------------------------------------------------------
 
+
 @app.command("generate-audit-bundle")
 def generate_audit_bundle(
     output: Path = typer.Option(
@@ -406,59 +424,73 @@ def generate_audit_bundle(
         async with AsyncSessionLocal() as db:
             exporter = AuditExporter(release_id=release_id)
 
-            ctrl_result = await db.execute(select(Control).options(selectinload(Control.evidence_items)))
+            ctrl_result = await db.execute(
+                select(Control).options(selectinload(Control.evidence_items))
+            )
             controls = ctrl_result.scalars().all()
-            exporter.add_controls([
-                {
-                    "control_id": c.control_id,
-                    "title": c.title,
-                    "family": c.family,
-                    "baseline": c.baseline,
-                    "status": c.implementations[0].status.value if c.implementations else "not_implemented",
-                    "evidence_items": [{"evidence_id": e.evidence_id} for e in c.evidence_items],
-                }
-                for c in controls
-            ])
+            exporter.add_controls(
+                [
+                    {
+                        "control_id": c.control_id,
+                        "title": c.title,
+                        "family": c.family,
+                        "baseline": c.baseline,
+                        "status": c.implementations[0].status.value
+                        if c.implementations
+                        else "not_implemented",
+                        "evidence_items": [
+                            {"evidence_id": e.evidence_id} for e in c.evidence_items
+                        ],
+                    }
+                    for c in controls
+                ]
+            )
 
             ev_result = await db.execute(select(EvidenceItem))
             evidence = ev_result.scalars().all()
-            exporter.add_evidence_items([
-                {
-                    "evidence_id": e.evidence_id,
-                    "title": e.title,
-                    "evidence_type": e.evidence_type.value,
-                    "status": e.status.value,
-                    "source_system": e.source_system,
-                    "collected_at": e.collected_at.isoformat() if e.collected_at else None,
-                }
-                for e in evidence
-            ])
+            exporter.add_evidence_items(
+                [
+                    {
+                        "evidence_id": e.evidence_id,
+                        "title": e.title,
+                        "evidence_type": e.evidence_type.value,
+                        "status": e.status.value,
+                        "source_system": e.source_system,
+                        "collected_at": e.collected_at.isoformat() if e.collected_at else None,
+                    }
+                    for e in evidence
+                ]
+            )
 
             exc_result = await db.execute(select(ExceptionRecord))
             exceptions = exc_result.scalars().all()
-            exporter.add_exceptions([
-                {
-                    "exception_id": e.exception_id,
-                    "title": e.title,
-                    "status": e.status.value,
-                    "approver": e.approver,
-                    "expires_at": e.expires_at.isoformat() if e.expires_at else None,
-                    "justification": e.justification,
-                }
-                for e in exceptions
-            ])
+            exporter.add_exceptions(
+                [
+                    {
+                        "exception_id": e.exception_id,
+                        "title": e.title,
+                        "status": e.status.value,
+                        "approver": e.approver,
+                        "expires_at": e.expires_at.isoformat() if e.expires_at else None,
+                        "justification": e.justification,
+                    }
+                    for e in exceptions
+                ]
+            )
 
             inc_result = await db.execute(select(Incident))
             incidents = inc_result.scalars().all()
-            exporter.add_incidents([
-                {
-                    "incident_id": i.incident_id,
-                    "title": i.title,
-                    "severity": i.severity.value,
-                    "status": i.status.value,
-                }
-                for i in incidents
-            ])
+            exporter.add_incidents(
+                [
+                    {
+                        "incident_id": i.incident_id,
+                        "title": i.title,
+                        "severity": i.severity.value,
+                        "status": i.status.value,
+                    }
+                    for i in incidents
+                ]
+            )
 
             return exporter
 
@@ -479,6 +511,7 @@ def generate_audit_bundle(
 # ---------------------------------------------------------------------------
 # trace show
 # ---------------------------------------------------------------------------
+
 
 @trace_app.command("show")
 def trace_show(
@@ -542,7 +575,9 @@ def trace_show(
 
     console.print(f"\n[dim]Edges: {len(graph.edges)}[/dim]")
     for edge in graph.edges[:20]:
-        console.print(f"  [blue]{edge.source}[/blue] --[{edge.relationship}]--> [green]{edge.target}[/green]")
+        console.print(
+            f"  [blue]{edge.source}[/blue] --[{edge.relationship}]--> [green]{edge.target}[/green]"
+        )
 
     if len(graph.edges) > 20:
         console.print(f"  ... and {len(graph.edges) - 20} more")
@@ -551,6 +586,7 @@ def trace_show(
 # ---------------------------------------------------------------------------
 # graph export
 # ---------------------------------------------------------------------------
+
 
 @app.command("graph-export")
 def graph_export(
@@ -567,24 +603,42 @@ def graph_export(
         from app.services.traceability import build_engine_from_db_data
 
         async with AsyncSessionLocal() as db:
-            reqs = list((await db.execute(
-                select(Requirement).options(
-                    selectinload(Requirement.controls),
-                    selectinload(Requirement.test_cases),
+            reqs = list(
+                (
+                    await db.execute(
+                        select(Requirement).options(
+                            selectinload(Requirement.controls),
+                            selectinload(Requirement.test_cases),
+                        )
+                    )
                 )
-            )).scalars().all())
-            controls = list((await db.execute(
-                select(Control).options(selectinload(Control.evidence_items))
-            )).scalars().all())
-            releases = list((await db.execute(
-                select(Release).options(
-                    selectinload(Release.requirements),
-                    selectinload(Release.artifacts),
+                .scalars()
+                .all()
+            )
+            controls = list(
+                (await db.execute(select(Control).options(selectinload(Control.evidence_items))))
+                .scalars()
+                .all()
+            )
+            releases = list(
+                (
+                    await db.execute(
+                        select(Release).options(
+                            selectinload(Release.requirements),
+                            selectinload(Release.artifacts),
+                        )
+                    )
                 )
-            )).scalars().all())
+                .scalars()
+                .all()
+            )
 
             engine = build_engine_from_db_data(
-                requirements=reqs, controls=controls, evidence_items=[], test_cases=[], releases=releases
+                requirements=reqs,
+                controls=controls,
+                evidence_items=[],
+                test_cases=[],
+                releases=releases,
             )
             return engine.to_dict()
 

@@ -31,9 +31,7 @@ def make_rule(
 
 class TestPolicyEngineArtifactChecks:
     def test_sbom_required_passes_when_all_have_sbom(self) -> None:
-        engine = PolicyEngine(
-            rules=[make_rule("R1", "artifact_has_sbom", threshold=1.0)]
-        )
+        engine = PolicyEngine(rules=[make_rule("R1", "artifact_has_sbom", threshold=1.0)])
         ctx = ReleaseContext(
             release_id="REL-001",
             artifacts=[
@@ -46,9 +44,7 @@ class TestPolicyEngineArtifactChecks:
         assert result.checks[0].passed
 
     def test_sbom_required_fails_when_missing(self) -> None:
-        engine = PolicyEngine(
-            rules=[make_rule("R1", "artifact_has_sbom", threshold=1.0)]
-        )
+        engine = PolicyEngine(rules=[make_rule("R1", "artifact_has_sbom", threshold=1.0)])
         ctx = ReleaseContext(
             release_id="REL-001",
             artifacts=[
@@ -63,9 +59,7 @@ class TestPolicyEngineArtifactChecks:
 
     def test_sbom_threshold_partial(self) -> None:
         """50% threshold should pass when 1/2 artifacts have SBOM."""
-        engine = PolicyEngine(
-            rules=[make_rule("R1", "artifact_has_sbom", threshold=0.5)]
-        )
+        engine = PolicyEngine(rules=[make_rule("R1", "artifact_has_sbom", threshold=0.5)])
         ctx = ReleaseContext(
             release_id="REL-001",
             artifacts=[
@@ -78,17 +72,13 @@ class TestPolicyEngineArtifactChecks:
 
     def test_no_artifacts_passes_sbom_check(self) -> None:
         """No artifacts → check should pass (nothing to check)."""
-        engine = PolicyEngine(
-            rules=[make_rule("R1", "artifact_has_sbom", threshold=1.0)]
-        )
+        engine = PolicyEngine(rules=[make_rule("R1", "artifact_has_sbom", threshold=1.0)])
         ctx = ReleaseContext(release_id="REL-001", artifacts=[])
         result = engine.evaluate(ctx)
         assert result.overall_passed
 
     def test_provenance_check_passes(self) -> None:
-        engine = PolicyEngine(
-            rules=[make_rule("R1", "artifact_has_provenance", threshold=1.0)]
-        )
+        engine = PolicyEngine(rules=[make_rule("R1", "artifact_has_provenance", threshold=1.0)])
         ctx = ReleaseContext(
             release_id="REL-001",
             artifacts=[{"artifact_id": "A1", "has_provenance": True}],
@@ -97,9 +87,7 @@ class TestPolicyEngineArtifactChecks:
         assert result.overall_passed
 
     def test_provenance_check_fails(self) -> None:
-        engine = PolicyEngine(
-            rules=[make_rule("R1", "artifact_has_provenance", threshold=1.0)]
-        )
+        engine = PolicyEngine(rules=[make_rule("R1", "artifact_has_provenance", threshold=1.0)])
         ctx = ReleaseContext(
             release_id="REL-001",
             artifacts=[{"artifact_id": "A1", "has_provenance": False}],
@@ -110,9 +98,7 @@ class TestPolicyEngineArtifactChecks:
 
 class TestPolicyEngineVulnChecks:
     def test_no_critical_vulns_passes(self) -> None:
-        engine = PolicyEngine(
-            rules=[make_rule("R1", "no_critical_vulns", max_allowed=0)]
-        )
+        engine = PolicyEngine(rules=[make_rule("R1", "no_critical_vulns", max_allowed=0)])
         ctx = ReleaseContext(
             release_id="REL-001",
             artifacts=[{"artifact_id": "A1", "critical_vulns": 0, "high_vulns": 2}],
@@ -121,9 +107,7 @@ class TestPolicyEngineVulnChecks:
         assert result.overall_passed
 
     def test_critical_vulns_fails(self) -> None:
-        engine = PolicyEngine(
-            rules=[make_rule("R1", "no_critical_vulns", max_allowed=0)]
-        )
+        engine = PolicyEngine(rules=[make_rule("R1", "no_critical_vulns", max_allowed=0)])
         ctx = ReleaseContext(
             release_id="REL-001",
             artifacts=[{"artifact_id": "A1", "critical_vulns": 2}],
@@ -223,9 +207,7 @@ class TestPolicyEngineControlsAndApprovals:
 
 class TestPolicyEngineExceptionsAndEvidence:
     def test_no_open_exceptions_passes(self) -> None:
-        engine = PolicyEngine(
-            rules=[make_rule("R1", "no_open_blocking_exceptions")]
-        )
+        engine = PolicyEngine(rules=[make_rule("R1", "no_open_blocking_exceptions")])
         ctx = ReleaseContext(
             release_id="REL-001",
             open_blocking_exceptions=[],
@@ -234,9 +216,7 @@ class TestPolicyEngineExceptionsAndEvidence:
         assert result.overall_passed
 
     def test_open_exceptions_fails(self) -> None:
-        engine = PolicyEngine(
-            rules=[make_rule("R1", "no_open_blocking_exceptions")]
-        )
+        engine = PolicyEngine(rules=[make_rule("R1", "no_open_blocking_exceptions")])
         ctx = ReleaseContext(
             release_id="REL-001",
             open_blocking_exceptions=[{"exception_id": "EXC-001", "status": "open"}],
@@ -245,9 +225,7 @@ class TestPolicyEngineExceptionsAndEvidence:
         assert not result.overall_passed
 
     def test_evidence_freshness_passes(self) -> None:
-        engine = PolicyEngine(
-            rules=[make_rule("R1", "evidence_freshness_days", max_age_days=90)]
-        )
+        engine = PolicyEngine(rules=[make_rule("R1", "evidence_freshness_days", max_age_days=90)])
         ctx = ReleaseContext(
             release_id="REL-001",
             evidence_items=[
@@ -258,9 +236,7 @@ class TestPolicyEngineExceptionsAndEvidence:
         assert result.overall_passed
 
     def test_evidence_freshness_fails_for_stale(self) -> None:
-        engine = PolicyEngine(
-            rules=[make_rule("R1", "evidence_freshness_days", max_age_days=30)]
-        )
+        engine = PolicyEngine(rules=[make_rule("R1", "evidence_freshness_days", max_age_days=30)])
         ctx = ReleaseContext(
             release_id="REL-001",
             evidence_items=[
@@ -274,9 +250,7 @@ class TestPolicyEngineExceptionsAndEvidence:
         assert not result.checks[0].passed
 
     def test_test_pass_rate_100_passes(self) -> None:
-        engine = PolicyEngine(
-            rules=[make_rule("R1", "test_pass_rate", min_pass_rate=1.0)]
-        )
+        engine = PolicyEngine(rules=[make_rule("R1", "test_pass_rate", min_pass_rate=1.0)])
         ctx = ReleaseContext(
             release_id="REL-001",
             test_results=[
@@ -288,9 +262,7 @@ class TestPolicyEngineExceptionsAndEvidence:
         assert result.overall_passed
 
     def test_test_pass_rate_fails(self) -> None:
-        engine = PolicyEngine(
-            rules=[make_rule("R1", "test_pass_rate", min_pass_rate=1.0)]
-        )
+        engine = PolicyEngine(rules=[make_rule("R1", "test_pass_rate", min_pass_rate=1.0)])
         ctx = ReleaseContext(
             release_id="REL-001",
             test_results=[
@@ -303,9 +275,7 @@ class TestPolicyEngineExceptionsAndEvidence:
 
     def test_no_tests_registered_passes(self) -> None:
         """No test results → should pass (informational)."""
-        engine = PolicyEngine(
-            rules=[make_rule("R1", "test_pass_rate", min_pass_rate=1.0)]
-        )
+        engine = PolicyEngine(rules=[make_rule("R1", "test_pass_rate", min_pass_rate=1.0)])
         ctx = ReleaseContext(release_id="REL-001", test_results=[])
         result = engine.evaluate(ctx)
         assert result.overall_passed
@@ -339,9 +309,7 @@ class TestPolicyEngineMultiRule:
         )
         ctx = ReleaseContext(
             release_id="REL-001",
-            artifacts=[
-                {"artifact_id": "A1", "has_sbom": False, "has_provenance": False}
-            ],
+            artifacts=[{"artifact_id": "A1", "has_sbom": False, "has_provenance": False}],
         )
         result = engine.evaluate(ctx)
         # 1 out of 3 pass → 33.3% score
@@ -432,7 +400,9 @@ rules:
             evidence_items=[
                 {
                     "evidence_id": "EV-001",
-                    "collected_at": __import__("datetime").datetime.now(__import__("datetime").timezone.utc),
+                    "collected_at": __import__("datetime").datetime.now(
+                        __import__("datetime").timezone.utc
+                    ),
                 }
             ],
             test_results=[{"result": "pass"}, {"result": "pass"}],
