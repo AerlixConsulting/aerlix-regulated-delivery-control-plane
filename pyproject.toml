@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "aerlix-regulated-delivery-control-plane"
-version = "0.1.0"
+version = "0.2.0"
 description = "Compliance-native software delivery control plane for regulated environments"
 authors = ["Aerlix Consulting <engineering@aerlix.io>"]
 readme = "README.md"
@@ -69,6 +69,7 @@ ignore = ["E501", "B008", "UP042", "F841"]
 
 [tool.ruff.lint.per-file-ignores]
 "__init__.py" = ["F401"]
+"migrations/env.py" = ["F401", "F403", "E402"]
 
 [tool.mypy]
 python_version = "3.12"

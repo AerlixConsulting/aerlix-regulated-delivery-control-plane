@@ -77,6 +77,20 @@ async def update_evidence(evidence_id: str, payload: EvidenceItemCreate, db: DbD
     return ev
 
 
+@router.patch("/{evidence_id}", response_model=EvidenceItemRead)
+async def patch_evidence(evidence_id: str, payload: EvidenceItemCreate, db: DbDep) -> EvidenceItem:
+    result = await db.execute(select(EvidenceItem).where(EvidenceItem.evidence_id == evidence_id))
+    ev = result.scalar_one_or_none()
+    if ev is None:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Evidence item not found")
+    data = payload.model_dump(exclude_unset=True, exclude_none=True, by_alias=False)
+    for k, v in data.items():
+        setattr(ev, k, v)
+    await db.commit()
+    await db.refresh(ev)
+    return ev
+
+
 @router.delete("/{evidence_id}", status_code=status.HTTP_204_NO_CONTENT)
 async def delete_evidence(evidence_id: str, db: DbDep) -> None:
     result = await db.execute(select(EvidenceItem).where(EvidenceItem.evidence_id == evidence_id))

@@ -77,6 +77,19 @@ async def update_release(release_id: str, payload: ReleaseCreate, db: DbDep) -> 
     return rel
 
 
+@router.patch("/{release_id}", response_model=ReleaseRead)
+async def patch_release(release_id: str, payload: ReleaseCreate, db: DbDep) -> Release:
+    result = await db.execute(select(Release).where(Release.release_id == release_id))
+    rel = result.scalar_one_or_none()
+    if rel is None:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Release not found")
+    for k, v in payload.model_dump(exclude_unset=True, exclude_none=True).items():
+        setattr(rel, k, v)
+    await db.commit()
+    await db.refresh(rel)
+    return rel
+
+
 @router.delete("/{release_id}", status_code=status.HTTP_204_NO_CONTENT)
 async def delete_release(release_id: str, db: DbDep) -> None:
     result = await db.execute(select(Release).where(Release.release_id == release_id))

@@ -4,7 +4,7 @@ import uuid
 from datetime import datetime
 from typing import Any
 
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import AliasChoices, BaseModel, ConfigDict, Field
 
 from app.models import (
     ControlStatus,
@@ -168,7 +168,11 @@ class EvidenceItemBase(BaseSchema):
     source_url: str | None = None
     content_hash: str | None = None
     expires_at: datetime | None = None
-    metadata_: dict | None = Field(None, alias="metadata")
+    metadata_: dict | None = Field(
+        None,
+        validation_alias=AliasChoices("metadata_", "metadata"),
+        serialization_alias="metadata",
+    )
     control_id: uuid.UUID | None = None
 
     model_config = ConfigDict(from_attributes=True, populate_by_name=True)

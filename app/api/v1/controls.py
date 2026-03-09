@@ -85,6 +85,19 @@ async def update_control(control_id: str, payload: ControlCreate, db: DbDep) -> 
     return ctrl
 
 
+@router.patch("/{control_id}", response_model=ControlRead)
+async def patch_control(control_id: str, payload: ControlCreate, db: DbDep) -> Control:
+    result = await db.execute(select(Control).where(Control.control_id == control_id))
+    ctrl = result.scalar_one_or_none()
+    if ctrl is None:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Control not found")
+    for k, v in payload.model_dump(exclude_unset=True, exclude_none=True).items():
+        setattr(ctrl, k, v)
+    await db.commit()
+    await db.refresh(ctrl)
+    return ctrl
+
+
 @router.delete("/{control_id}", status_code=status.HTTP_204_NO_CONTENT)
 async def delete_control(control_id: str, db: DbDep) -> None:
     result = await db.execute(select(Control).where(Control.control_id == control_id))

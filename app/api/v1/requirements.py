@@ -84,6 +84,19 @@ async def update_requirement(req_id: str, payload: RequirementCreate, db: DbDep)
     return req
 
 
+@router.patch("/{req_id}", response_model=RequirementRead)
+async def patch_requirement(req_id: str, payload: RequirementCreate, db: DbDep) -> Requirement:
+    result = await db.execute(select(Requirement).where(Requirement.req_id == req_id))
+    req = result.scalar_one_or_none()
+    if req is None:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Requirement not found")
+    for k, v in payload.model_dump(exclude_unset=True, exclude_none=True).items():
+        setattr(req, k, v)
+    await db.commit()
+    await db.refresh(req)
+    return req
+
+
 @router.delete("/{req_id}", status_code=status.HTTP_204_NO_CONTENT)
 async def delete_requirement(req_id: str, db: DbDep) -> None:
     result = await db.execute(select(Requirement).where(Requirement.req_id == req_id))
